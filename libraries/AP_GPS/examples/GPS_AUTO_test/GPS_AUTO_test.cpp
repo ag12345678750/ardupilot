@@ -43,7 +43,7 @@ AP_BoardLED board_led;
 // This example uses GPS system. Create it.
 AP_GPS gps;
 
-// Serial manager is needed for UART comunications
+// Serial manager is needed for UART communications
 AP_SerialManager serial_manager;
 
 
