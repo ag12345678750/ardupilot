@@ -37,16 +37,17 @@ enum LeddarOne_ModbusStatus {
     LEDDARONE_MODBUS_STATE_AVAILABLE
 };
 
-class AP_RangeFinder_LeddarOne : public AP_RangeFinder_Backend
-{
+class AP_RangeFinder_LeddarOne: public AP_RangeFinder_Backend {
 
 public:
     // constructor
-    AP_RangeFinder_LeddarOne(RangeFinder &ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state,
-                                   AP_SerialManager &serial_manager);
+    AP_RangeFinder_LeddarOne(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state,
+            AP_SerialManager &serial_manager);
 
     // static detection function
-    static bool detect(RangeFinder &ranger, uint8_t instance, AP_SerialManager &serial_manager);
+    static bool detect(RangeFinder &ranger, uint8_t instance,
+            AP_SerialManager &serial_manager);
 
     // update state
     void update(void);
@@ -76,13 +77,12 @@ private:
     // Modbus send request buffer
     // read input register (function code 0x04)
     const uint8_t send_request_buffer[8] = {
-        LEDDARONE_DEFAULT_ADDRESS,
-        LEDDARONE_MODOBUS_FUNCTION_CODE,
-        0,
-        LEDDARONE_MODOBUS_FUNCTION_REGISTER_ADDRESS,   // 20: Address of first register to read
-        0,
-        LEDDARONE_MODOBUS_FUNCTION_READ_NUMBER,        // 10: The number of consecutive registers to read
-        0x30,   // CRC Lo
-        0x09    // CRC Hi
-    };
+    LEDDARONE_DEFAULT_ADDRESS,
+    LEDDARONE_MODOBUS_FUNCTION_CODE, 0,
+    LEDDARONE_MODOBUS_FUNCTION_REGISTER_ADDRESS, // 20: Address of first register to read
+            0,
+            LEDDARONE_MODOBUS_FUNCTION_READ_NUMBER, // 10: The number of consecutive registers to read
+            0x30,   // CRC Lo
+            0x09    // CRC Hi
+            };
 };

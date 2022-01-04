@@ -3,16 +3,17 @@
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
 
-class AP_RangeFinder_MaxsonarSerialLV : public AP_RangeFinder_Backend
-{
+class AP_RangeFinder_MaxsonarSerialLV: public AP_RangeFinder_Backend {
 
 public:
     // constructor
-    AP_RangeFinder_MaxsonarSerialLV(RangeFinder &ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state,
-                                   AP_SerialManager &serial_manager);
+    AP_RangeFinder_MaxsonarSerialLV(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state,
+            AP_SerialManager &serial_manager);
 
     // static detection function
-    static bool detect(RangeFinder &ranger, uint8_t instance, AP_SerialManager &serial_manager);
+    static bool detect(RangeFinder &ranger, uint8_t instance,
+            AP_SerialManager &serial_manager);
 
     // update state
     void update(void);

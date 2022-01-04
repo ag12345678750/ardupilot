@@ -1,16 +1,16 @@
 /*
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "AP_RangeFinder_PulsedLightLRF.h"
 
@@ -20,7 +20,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_HAL/utility/sparse-endian.h>
 
-extern const AP_HAL::HAL& hal;
+extern const AP_HAL::HAL &hal;
 
 /* LL40LS Registers addresses */
 #define LL40LS_MEASURE_REG    0x00        /* Measure range register */
@@ -40,31 +40,30 @@ extern const AP_HAL::HAL& hal;
 #define LL40LS_ADDR   0x62
 
 /*
-   The constructor also initializes the rangefinder. Note that this
-   constructor is not called until detect() returns true, so we
-   already know that we should setup the rangefinder
-*/
-AP_RangeFinder_PulsedLightLRF::AP_RangeFinder_PulsedLightLRF(uint8_t bus, RangeFinder &_ranger, uint8_t instance,
-                                                             RangeFinder::RangeFinder_State &_state,
-                                                             RangeFinder::RangeFinder_Type _rftype)
-    : AP_RangeFinder_Backend(_ranger, instance, _state, MAV_DISTANCE_SENSOR_LASER)
-    , _dev(hal.i2c_mgr->get_device(bus, LL40LS_ADDR))
-    , rftype(_rftype)
-{
+ The constructor also initializes the rangefinder. Note that this
+ constructor is not called until detect() returns true, so we
+ already know that we should setup the rangefinder
+ */
+AP_RangeFinder_PulsedLightLRF::AP_RangeFinder_PulsedLightLRF(uint8_t bus,
+        RangeFinder &_ranger, uint8_t instance,
+        RangeFinder::RangeFinder_State &_state,
+        RangeFinder::RangeFinder_Type _rftype) :
+        AP_RangeFinder_Backend(_ranger, instance, _state,
+                MAV_DISTANCE_SENSOR_LASER), _dev(
+                hal.i2c_mgr->get_device(bus, LL40LS_ADDR)), rftype(_rftype) {
 }
 
 /*
-   detect if a PulsedLight rangefinder is connected. We'll detect by
-   look for the version registers
-*/
-AP_RangeFinder_Backend *AP_RangeFinder_PulsedLightLRF::detect(uint8_t bus, RangeFinder &_ranger, uint8_t instance,
-                                                              RangeFinder::RangeFinder_State &_state,
-                                                              RangeFinder::RangeFinder_Type rftype)
-{
-    AP_RangeFinder_PulsedLightLRF *sensor
-        = new AP_RangeFinder_PulsedLightLRF(bus, _ranger, instance, _state, rftype);
-    if (!sensor ||
-        !sensor->init()) {
+ detect if a PulsedLight rangefinder is connected. We'll detect by
+ look for the version registers
+ */
+AP_RangeFinder_Backend* AP_RangeFinder_PulsedLightLRF::detect(uint8_t bus,
+        RangeFinder &_ranger, uint8_t instance,
+        RangeFinder::RangeFinder_State &_state,
+        RangeFinder::RangeFinder_Type rftype) {
+    AP_RangeFinder_PulsedLightLRF *sensor = new AP_RangeFinder_PulsedLightLRF(
+            bus, _ranger, instance, _state, rftype);
+    if (!sensor || !sensor->init()) {
         delete sensor;
         return nullptr;
     }
@@ -72,16 +71,15 @@ AP_RangeFinder_Backend *AP_RangeFinder_PulsedLightLRF::detect(uint8_t bus, Range
 }
 
 /*
-  called at 50Hz
+ called at 50Hz
  */
-void AP_RangeFinder_PulsedLightLRF::timer(void)
-{
+void AP_RangeFinder_PulsedLightLRF::timer(void) {
     if (check_reg_counter++ == 10) {
         check_reg_counter = 0;
         if (!_dev->check_next_register()) {
             // re-send the acquire. this handles the case of power
             // cycling while running in continuous mode
-            _dev->write_register(LL40LS_MEASURE_REG, LL40LS_MSRREG_ACQUIRE);            
+            _dev->write_register(LL40LS_MEASURE_REG, LL40LS_MSRREG_ACQUIRE);
         }
     }
 
@@ -95,12 +93,13 @@ void AP_RangeFinder_PulsedLightLRF::timer(void)
     case PHASE_COLLECT: {
         be16_t val;
         // read the high and low byte distance registers
-        if (_dev->read_registers(LL40LS_DISTHIGH_REG | LL40LS_AUTO_INCREMENT, (uint8_t*)&val, sizeof(val))) {
+        if (_dev->read_registers(LL40LS_DISTHIGH_REG | LL40LS_AUTO_INCREMENT,
+                (uint8_t*) &val, sizeof(val))) {
             uint16_t distance_cm = be16toh(val);
             // remove momentary spikes
             if (abs(distance_cm - last_distance_cm) < 100) {
                 state.distance_cm = distance_cm;
-                update_status();                
+                update_status();
             }
             last_distance_cm = distance_cm;
         } else {
@@ -115,9 +114,8 @@ void AP_RangeFinder_PulsedLightLRF::timer(void)
     }
 }
 
-
 /*
-  a table of settings for a lidar
+ a table of settings for a lidar
  */
 struct settings_table {
     uint8_t reg;
@@ -125,26 +123,22 @@ struct settings_table {
 };
 
 /*
-  register setup table for V1 Lidar
+ register setup table for V1 Lidar
  */
-static const struct settings_table settings_v1[] = {
-    { LL40LS_MEASURE_REG, LL40LS_MSRREG_RESET },
-};
+static const struct settings_table settings_v1[] = { { LL40LS_MEASURE_REG,
+        LL40LS_MSRREG_RESET }, };
 
 /*
-  register setup table for V2 Lidar
+ register setup table for V2 Lidar
  */
-static const struct settings_table settings_v2[] = {
-    { LL40LS_INTERVAL, 0x28 }, // 0x28 == 50Hz
-    { LL40LS_COUNT, LL40LS_COUNT_CONTINUOUS },
-    { LL40LS_MEASURE_REG, LL40LS_MSRREG_ACQUIRE },
-};
+static const struct settings_table settings_v2[] = { { LL40LS_INTERVAL, 0x28 }, // 0x28 == 50Hz
+        { LL40LS_COUNT, LL40LS_COUNT_CONTINUOUS }, { LL40LS_MEASURE_REG,
+                LL40LS_MSRREG_ACQUIRE }, };
 
 /*
-  initialise the sensor to required settings
+ initialise the sensor to required settings
  */
-bool AP_RangeFinder_PulsedLightLRF::init(void)
-{
+bool AP_RangeFinder_PulsedLightLRF::init(void) {
     if (!_dev || !_dev->get_semaphore()->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
         return false;
     }
@@ -157,17 +151,18 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
         v2_hardware = true;
     } else {
         // auto-detect v1 vs v2
-        if (!(_dev->read_registers(LL40LS_HW_VERSION, &hw_version, 1) &&
-              hw_version > 0 &&
-              _dev->read_registers(LL40LS_SW_VERSION, &sw_version, 1) &&
-              sw_version > 0)) {
-            printf("PulsedLightI2C: bad version 0x%02x 0x%02x\n", (unsigned)hw_version, (unsigned)sw_version);
+        if (!(_dev->read_registers(LL40LS_HW_VERSION, &hw_version, 1)
+                && hw_version > 0
+                && _dev->read_registers(LL40LS_SW_VERSION, &sw_version, 1)
+                && sw_version > 0)) {
+            printf("PulsedLightI2C: bad version 0x%02x 0x%02x\n",
+                    (unsigned) hw_version, (unsigned) sw_version);
             // invalid version information
             goto failed;
         }
         v2_hardware = (hw_version >= 0x15);
     }
-    
+
     const struct settings_table *table;
     uint8_t num_settings;
 
@@ -178,7 +173,7 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
     } else {
         table = settings_v1;
         num_settings = sizeof(settings_v1) / sizeof(settings_table);
-        phase = PHASE_MEASURE;    
+        phase = PHASE_MEASURE;
     }
 
     _dev->setup_checked_registers(num_settings);
@@ -189,16 +184,16 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
         }
     }
 
-    printf("Found LidarLite device=0x%x v2=%d\n", _dev->get_bus_id(), (int)v2_hardware);
-    
+    printf("Found LidarLite device=0x%x v2=%d\n", _dev->get_bus_id(),
+            (int) v2_hardware);
+
     _dev->get_semaphore()->give();
 
     _dev->register_periodic_callback(20000,
-                                     FUNCTOR_BIND_MEMBER(&AP_RangeFinder_PulsedLightLRF::timer, void));
+            FUNCTOR_BIND_MEMBER(&AP_RangeFinder_PulsedLightLRF::timer, void));
     return true;
 
-failed:
-    _dev->get_semaphore()->give();
+    failed: _dev->get_semaphore()->give();
     return false;
 }
 

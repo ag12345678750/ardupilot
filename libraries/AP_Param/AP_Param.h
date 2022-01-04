@@ -72,10 +72,10 @@
 #define AP_VAROFFSET(type, element) (((ptrdiff_t)(&((const type *)1)->element))-1)
 
 // find the type of a variable given the class and element
-#define AP_CLASSTYPE(clazz, element) ((uint8_t)(((const clazz *) 1)->element.vtype))
+#define AP_CLASSTYPE(clazz, element) ( (uint8_t)( ( (const clazz *) 1)->element.vtype) )
 
 // declare a group var_info line
-#define AP_GROUPINFO_FLAGS(name, idx, clazz, element, def, flags) { AP_CLASSTYPE(clazz, element), idx, name, AP_VAROFFSET(clazz, element), {def_value : def}, flags }
+#define AP_GROUPINFO_FLAGS(name, idx, clazz, element, def, flags) {AP_CLASSTYPE(clazz, element), idx, name, AP_VAROFFSET(clazz, element), {def_value : def}, flags}
 
 // declare a group var_info line with a frame type mask
 #define AP_GROUPINFO_FRAME(name, idx, clazz, element, def, frame_flags) AP_GROUPINFO_FLAGS(name, idx, clazz, element, def, (frame_flags)<<AP_PARAM_FRAME_TYPE_SHIFT )

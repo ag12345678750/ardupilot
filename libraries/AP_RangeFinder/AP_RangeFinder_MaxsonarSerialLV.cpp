@@ -22,37 +22,41 @@
 
 #define MAXSONAR_SERIAL_LV_BAUD_RATE 9600
 
-extern const AP_HAL::HAL& hal;
+extern const AP_HAL::HAL &hal;
 
 /* 
-   The constructor also initialises the rangefinder. Note that this
-   constructor is not called until detect() returns true, so we
-   already know that we should setup the rangefinder
-*/
-AP_RangeFinder_MaxsonarSerialLV::AP_RangeFinder_MaxsonarSerialLV(RangeFinder &_ranger, uint8_t instance,
-                                                                 RangeFinder::RangeFinder_State &_state,
-                                                                 AP_SerialManager &serial_manager) :
-    AP_RangeFinder_Backend(_ranger, instance, _state, MAV_DISTANCE_SENSOR_ULTRASOUND)
-{
-    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0);
+ The constructor also initialises the rangefinder. Note that this
+ constructor is not called until detect() returns true, so we
+ already know that we should setup the rangefinder
+ */
+AP_RangeFinder_MaxsonarSerialLV::AP_RangeFinder_MaxsonarSerialLV(
+        RangeFinder &_ranger, uint8_t instance,
+        RangeFinder::RangeFinder_State &_state,
+        AP_SerialManager &serial_manager) :
+        AP_RangeFinder_Backend(_ranger, instance, _state,
+                MAV_DISTANCE_SENSOR_ULTRASOUND) {
+    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar,
+            0);
     if (uart != nullptr) {
-        uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_Lidar, 0));
+        uart->begin(
+                serial_manager.find_baudrate(
+                        AP_SerialManager::SerialProtocol_Lidar, 0));
     }
 }
 
 /* 
-   detect if a MaxSonar rangefinder is connected. We'll detect by
-   trying to take a reading on Serial. If we get a result the sensor is
-   there.
-*/
-bool AP_RangeFinder_MaxsonarSerialLV::detect(RangeFinder &_ranger, uint8_t instance, AP_SerialManager &serial_manager)
-{
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0) != nullptr;
+ detect if a MaxSonar rangefinder is connected. We'll detect by
+ trying to take a reading on Serial. If we get a result the sensor is
+ there.
+ */
+bool AP_RangeFinder_MaxsonarSerialLV::detect(RangeFinder &_ranger,
+        uint8_t instance, AP_SerialManager &serial_manager) {
+    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0)
+            != nullptr;
 }
 
 // read - return last value measured by sensor
-bool AP_RangeFinder_MaxsonarSerialLV::get_reading(uint16_t &reading_cm)
-{
+bool AP_RangeFinder_MaxsonarSerialLV::get_reading(uint16_t &reading_cm) {
     if (uart == nullptr) {
         return false;
     }
@@ -65,7 +69,7 @@ bool AP_RangeFinder_MaxsonarSerialLV::get_reading(uint16_t &reading_cm)
         char c = uart->read();
         if (c == '\r') {
             linebuf[linebuf_len] = 0;
-            sum += (int)atoi(linebuf);
+            sum += (int) atoi(linebuf);
             count++;
             linebuf_len = 0;
         } else if (isdigit(c)) {
@@ -88,10 +92,9 @@ bool AP_RangeFinder_MaxsonarSerialLV::get_reading(uint16_t &reading_cm)
 }
 
 /* 
-   update the state of the sensor
-*/
-void AP_RangeFinder_MaxsonarSerialLV::update(void)
-{
+ update the state of the sensor
+ */
+void AP_RangeFinder_MaxsonarSerialLV::update(void) {
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured
         last_reading_ms = AP_HAL::millis();

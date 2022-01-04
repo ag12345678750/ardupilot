@@ -124,6 +124,13 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("5_BAUD", 10, AP_SerialManager, state[5].baud, SERIAL5_BAUD),
 
+    // @Param: 5_BAUD
+    // @DisplayName: Serial 4 Protocol Selection
+    // @Description: Control what protocol Serial 3 (GPS) should be used for.
+    // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
+    // @User: Standard
+    AP_GROUPINFO("6_PROTOCOL", 12, AP_SerialManager, state[6].protocol, SerialProtocol_TFMini),
+
     // index 11 used by 0_PROTOCOL
     
     AP_GROUPEND
@@ -155,7 +162,7 @@ void AP_SerialManager::init()
     state[1].uart = hal.uartC;  // serial1, uartC, normally telem1
     state[2].uart = hal.uartD;  // serial2, uartD, normally telem2
     state[3].uart = hal.uartB;  // serial3, uartB, normally 1st GPS
-    state[4].uart = hal.uartE;  // serial4, uartE, normally 2nd GPS
+    state[4].uart = hal.uartE;  // serial4, uartE, normally 2nd GPS OR TTFMini
     state[5].uart = hal.uartF;  // serial5
 
     if (state[0].uart == nullptr) {
@@ -196,6 +203,7 @@ void AP_SerialManager::init()
                     break;
                 case SerialProtocol_GPS:
                 case SerialProtocol_GPS2:
+                case SerialProtocol_TFMini:
                     state[i].uart->begin(map_baudrate(state[i].baud), 
                                          AP_SERIALMANAGER_GPS_BUFSIZE_RX,
                                          AP_SERIALMANAGER_GPS_BUFSIZE_TX);
@@ -386,6 +394,11 @@ bool AP_SerialManager::protocol_match(enum SerialProtocol protocol1, enum Serial
     // gps match
     if (((protocol1 == SerialProtocol_GPS) || (protocol1 == SerialProtocol_GPS2)) &&
         ((protocol2 == SerialProtocol_GPS) || (protocol2 == SerialProtocol_GPS2))) {
+        return true;
+    }
+
+    // gps match
+    if (protocol1 == SerialProtocol_TFMini && protocol2 == SerialProtocol_TFMini) {
         return true;
     }
 

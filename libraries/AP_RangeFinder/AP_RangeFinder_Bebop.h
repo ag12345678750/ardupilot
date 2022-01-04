@@ -1,16 +1,16 @@
 /*
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
 
@@ -66,9 +66,9 @@
 struct echo {
     int max_index; /* index in the capture buffer at which the maximum is reached */
     int distance_index; /* index in the capture buffer at which the signal is for
-                            the first time above a fixed threshold below the
-                            maximum => this corresponds to the real distance
-                            that should be attributed to this echo */
+     the first time above a fixed threshold below the
+     maximum => this corresponds to the real distance
+     that should be attributed to this echo */
 };
 
 /*
@@ -82,14 +82,14 @@ struct adc_capture {
     struct iio_channel *channel;
     unsigned int freq;
 
-     /* Used in order to match two echoes of two ADC acquisitions */
+    /* Used in order to match two echoes of two ADC acquisitions */
     unsigned short threshold_time_rejection;
 };
 
-class AP_RangeFinder_Bebop : public AP_RangeFinder_Backend {
+class AP_RangeFinder_Bebop: public AP_RangeFinder_Backend {
 public:
-    AP_RangeFinder_Bebop(RangeFinder &ranger,
-            uint8_t instance, RangeFinder::RangeFinder_State &_state);
+    AP_RangeFinder_Bebop(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state);
 
     ~AP_RangeFinder_Bebop(void);
     static bool detect(RangeFinder &ranger, uint8_t instance);
@@ -121,7 +121,7 @@ private:
 
     unsigned char _tx[2][RNFD_BEBOP_NB_PULSES_MAX];
     unsigned char _purge[RNFD_BEBOP_NB_PULSES_PURGE];
-    unsigned char* _tx_buf;
+    unsigned char *_tx_buf;
     int _hysteresis_counter;
     const unsigned int threshold_echo_init = 1500;
     int _fd = -1;

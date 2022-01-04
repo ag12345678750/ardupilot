@@ -14,30 +14,30 @@
  *        ------------------------------------------------------------------------------------
  */
 
-class AP_RangeFinder_PulsedLightLRF : public AP_RangeFinder_Backend
-{
+class AP_RangeFinder_PulsedLightLRF: public AP_RangeFinder_Backend {
 
 public:
     // static detection function
-    static AP_RangeFinder_Backend *detect(uint8_t bus, RangeFinder &ranger, uint8_t instance,
-                                          RangeFinder::RangeFinder_State &_state,
-                                          RangeFinder::RangeFinder_Type rftype);
+    static AP_RangeFinder_Backend* detect(uint8_t bus, RangeFinder &ranger,
+            uint8_t instance, RangeFinder::RangeFinder_State &_state,
+            RangeFinder::RangeFinder_Type rftype);
 
     // update state
-    void update(void) override {}
-
+    void update(void) override {
+    }
 
 private:
     // constructor
-    AP_RangeFinder_PulsedLightLRF(uint8_t bus, RangeFinder &ranger, uint8_t instance,
-                                  RangeFinder::RangeFinder_State &_state,
-                                  RangeFinder::RangeFinder_Type rftype);
+    AP_RangeFinder_PulsedLightLRF(uint8_t bus, RangeFinder &ranger,
+            uint8_t instance, RangeFinder::RangeFinder_State &_state,
+            RangeFinder::RangeFinder_Type rftype);
 
     // start a reading
     bool init(void);
     void timer(void);
-    bool lidar_transfer(const uint8_t *send, unsigned send_len, uint8_t *recv, unsigned recv_len);
-    
+    bool lidar_transfer(const uint8_t *send, unsigned send_len, uint8_t *recv,
+            unsigned recv_len);
+
     AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
 
     uint8_t sw_version;
@@ -46,6 +46,8 @@ private:
     bool v2_hardware;
     uint16_t last_distance_cm;
     RangeFinder::RangeFinder_Type rftype;
-    
-    enum { PHASE_MEASURE, PHASE_COLLECT } phase;
+
+    enum {
+        PHASE_MEASURE, PHASE_COLLECT
+    } phase;
 };

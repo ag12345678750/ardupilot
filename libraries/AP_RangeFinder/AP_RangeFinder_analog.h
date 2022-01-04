@@ -3,11 +3,11 @@
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
 
-class AP_RangeFinder_analog : public AP_RangeFinder_Backend
-{
+class AP_RangeFinder_analog: public AP_RangeFinder_Backend {
 public:
     // constructor
-    AP_RangeFinder_analog(RangeFinder &ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state);
+    AP_RangeFinder_analog(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state);
 
     // static detection function
     static bool detect(RangeFinder &ranger, uint8_t instance);

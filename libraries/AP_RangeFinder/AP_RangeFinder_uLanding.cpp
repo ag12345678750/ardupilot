@@ -1,16 +1,16 @@
 /*
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <AP_HAL/AP_HAL.h>
@@ -21,39 +21,43 @@
 #define ULANDING_HDR 254   // Header Byte from uLanding (0xFE)
 #define ULANDING_HDR_V0 72 // Header Byte for beta V0 of uLanding (0x48)
 
-extern const AP_HAL::HAL& hal;
+extern const AP_HAL::HAL &hal;
 
 /*
-   The constructor also initialises the rangefinder. Note that this
-   constructor is not called until detect() returns true, so we
-   already know that we should setup the rangefinder
-*/
-AP_RangeFinder_uLanding::AP_RangeFinder_uLanding(RangeFinder &_ranger, uint8_t instance,
-                                                             RangeFinder::RangeFinder_State &_state,
-                                                             AP_SerialManager &serial_manager) :
-    AP_RangeFinder_Backend(_ranger, instance, _state, MAV_DISTANCE_SENSOR_RADAR)
-{
-    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0);
+ The constructor also initialises the rangefinder. Note that this
+ constructor is not called until detect() returns true, so we
+ already know that we should setup the rangefinder
+ */
+AP_RangeFinder_uLanding::AP_RangeFinder_uLanding(RangeFinder &_ranger,
+        uint8_t instance, RangeFinder::RangeFinder_State &_state,
+        AP_SerialManager &serial_manager) :
+        AP_RangeFinder_Backend(_ranger, instance, _state,
+                MAV_DISTANCE_SENSOR_RADAR) {
+    uart = serial_manager.find_serial(
+            AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0);
     if (uart != nullptr) {
-        uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0));
+        uart->begin(
+                serial_manager.find_baudrate(
+                        AP_SerialManager::SerialProtocol_Aerotenna_uLanding,
+                        0));
     }
 }
 
 /*
-   detect if a uLanding rangefinder is connected. We'll detect by
-   trying to take a reading on Serial. If we get a result the sensor is
-   there.
-*/
-bool AP_RangeFinder_uLanding::detect(RangeFinder &_ranger, uint8_t instance, AP_SerialManager &serial_manager)
-{
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0) != nullptr;
+ detect if a uLanding rangefinder is connected. We'll detect by
+ trying to take a reading on Serial. If we get a result the sensor is
+ there.
+ */
+bool AP_RangeFinder_uLanding::detect(RangeFinder &_ranger, uint8_t instance,
+        AP_SerialManager &serial_manager) {
+    return serial_manager.find_serial(
+            AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0) != nullptr;
 }
 
 /*
-   detect uLanding Firmware Version
-*/
-bool AP_RangeFinder_uLanding::detect_version(void)
-{
+ detect uLanding Firmware Version
+ */
+bool AP_RangeFinder_uLanding::detect_version(void) {
     if (_version_known) {
         // return true if we've already detected the uLanding version
         return true;
@@ -70,7 +74,7 @@ bool AP_RangeFinder_uLanding::detect_version(void)
 
     while (nbytes-- > 0) {
         uint8_t c = uart->read();
-        
+
         if (((c == ULANDING_HDR_V0) || (c == ULANDING_HDR)) && !hdr_found) {
             byte1 = c;
             hdr_found = true;
@@ -129,15 +133,12 @@ bool AP_RangeFinder_uLanding::detect_version(void)
     return false;
 }
 
-
 // read - return last value measured by sensor
-bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
-{
+bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm) {
     if (uart == nullptr) {
         return false;
     }
 
-    
     if (!detect_version()) {
         // return false if uLanding version check failed
         return false;
@@ -152,18 +153,18 @@ bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
 
     while (nbytes-- > 0) {
         uint8_t c = uart->read();
-        
+
         if ((c == _header) && !hdr_found) {
             // located header byte
             _linebuf_len = 0;
-            hdr_found   = true;
+            hdr_found = true;
         }
         // decode index information
         if (hdr_found) {
             _linebuf[_linebuf_len++] = c;
 
-            if ((_linebuf_len < (sizeof(_linebuf)/sizeof(_linebuf[0]))) ||
-                (_version == 0 && _linebuf_len < 3)) {
+            if ((_linebuf_len < (sizeof(_linebuf) / sizeof(_linebuf[0])))
+                    || (_version == 0 && _linebuf_len < 3)) {
                 /* don't process _linebuf until we've collected six bytes of data
                  * (or 3 bytes for Version 0 firmware)
                  */
@@ -171,13 +172,14 @@ bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
             } else {
                 if (_version == 0) {
                     // parse data for Firmware Version #0
-                    sum += (_linebuf[2]&0x7F)*128 + (_linebuf[1]&0x7F);
+                    sum += (_linebuf[2] & 0x7F) * 128 + (_linebuf[1] & 0x7F);
                     count++;
                 } else {
                     // evaluate checksum
-                    if (((_linebuf[1] + _linebuf[2] + _linebuf[3] + _linebuf[4]) & 0xFF) == _linebuf[5]) {
+                    if (((_linebuf[1] + _linebuf[2] + _linebuf[3] + _linebuf[4])
+                            & 0xFF) == _linebuf[5]) {
                         // if checksum passed, parse data for Firmware Version #1
-                        sum += _linebuf[3]*256 + _linebuf[2];
+                        sum += _linebuf[3] * 256 + _linebuf[2];
                         count++;
                     }
                 }
@@ -202,10 +204,9 @@ bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
 }
 
 /*
-   update the state of the sensor
-*/
-void AP_RangeFinder_uLanding::update(void)
-{
+ update the state of the sensor
+ */
+void AP_RangeFinder_uLanding::update(void) {
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured
         _last_reading_ms = AP_HAL::millis();

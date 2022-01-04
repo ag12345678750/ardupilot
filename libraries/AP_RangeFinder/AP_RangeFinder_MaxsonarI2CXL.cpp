@@ -1,16 +1,16 @@
 /*
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -28,29 +28,31 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_HAL/utility/sparse-endian.h>
 
-extern const AP_HAL::HAL& hal;
+extern const AP_HAL::HAL &hal;
 
 /*
-   The constructor also initializes the rangefinder. Note that this
-   constructor is not called until detect() returns true, so we
-   already know that we should setup the rangefinder
-*/
-AP_RangeFinder_MaxsonarI2CXL::AP_RangeFinder_MaxsonarI2CXL(RangeFinder &_ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state)
-    : AP_RangeFinder_Backend(_ranger, instance, _state, MAV_DISTANCE_SENSOR_ULTRASOUND)
-    , _dev(hal.i2c_mgr->get_device(1, AP_RANGE_FINDER_MAXSONARI2CXL_DEFAULT_ADDR))
-{
+ The constructor also initializes the rangefinder. Note that this
+ constructor is not called until detect() returns true, so we
+ already know that we should setup the rangefinder
+ */
+AP_RangeFinder_MaxsonarI2CXL::AP_RangeFinder_MaxsonarI2CXL(RangeFinder &_ranger,
+        uint8_t instance, RangeFinder::RangeFinder_State &_state) :
+        AP_RangeFinder_Backend(_ranger, instance, _state,
+                MAV_DISTANCE_SENSOR_ULTRASOUND), _dev(
+                hal.i2c_mgr->get_device(1,
+                        AP_RANGE_FINDER_MAXSONARI2CXL_DEFAULT_ADDR)) {
 }
 
 /*
-   detect if a Maxbotix rangefinder is connected. We'll detect by
-   trying to take a reading on I2C. If we get a result the sensor is
-   there.
-*/
-AP_RangeFinder_Backend *AP_RangeFinder_MaxsonarI2CXL::detect(RangeFinder &_ranger, uint8_t instance,
-                                                             RangeFinder::RangeFinder_State &_state)
-{
-    AP_RangeFinder_MaxsonarI2CXL *sensor
-        = new AP_RangeFinder_MaxsonarI2CXL(_ranger, instance, _state);
+ detect if a Maxbotix rangefinder is connected. We'll detect by
+ trying to take a reading on I2C. If we get a result the sensor is
+ there.
+ */
+AP_RangeFinder_Backend* AP_RangeFinder_MaxsonarI2CXL::detect(
+        RangeFinder &_ranger, uint8_t instance,
+        RangeFinder::RangeFinder_State &_state) {
+    AP_RangeFinder_MaxsonarI2CXL *sensor = new AP_RangeFinder_MaxsonarI2CXL(
+            _ranger, instance, _state);
     if (!sensor) {
         return nullptr;
     }
@@ -64,14 +66,12 @@ AP_RangeFinder_Backend *AP_RangeFinder_MaxsonarI2CXL::detect(RangeFinder &_range
 }
 
 /*
-  initialise sensor
+ initialise sensor
  */
-bool AP_RangeFinder_MaxsonarI2CXL::_init(void)
-{
+bool AP_RangeFinder_MaxsonarI2CXL::_init(void) {
     if (!_dev->get_semaphore()->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
         return false;
     }
-    
 
     if (!start_reading()) {
         _dev->get_semaphore()->give();
@@ -88,16 +88,15 @@ bool AP_RangeFinder_MaxsonarI2CXL::_init(void)
     }
 
     _dev->get_semaphore()->give();
-    
+
     _dev->register_periodic_callback(50000,
-                                     FUNCTOR_BIND_MEMBER(&AP_RangeFinder_MaxsonarI2CXL::_timer, void));
-    
+            FUNCTOR_BIND_MEMBER(&AP_RangeFinder_MaxsonarI2CXL::_timer, void));
+
     return true;
 }
 
 // start_reading() - ask sensor to make a range reading
-bool AP_RangeFinder_MaxsonarI2CXL::start_reading()
-{
+bool AP_RangeFinder_MaxsonarI2CXL::start_reading() {
     uint8_t cmd = AP_RANGE_FINDER_MAXSONARI2CXL_COMMAND_TAKE_RANGE_READING;
 
     // send command to take reading
@@ -105,12 +104,11 @@ bool AP_RangeFinder_MaxsonarI2CXL::start_reading()
 }
 
 // read - return last value measured by sensor
-bool AP_RangeFinder_MaxsonarI2CXL::get_reading(uint16_t &reading_cm)
-{
+bool AP_RangeFinder_MaxsonarI2CXL::get_reading(uint16_t &reading_cm) {
     be16_t val;
 
     // take range reading and read back results
-    bool ret = _dev->transfer(nullptr, 0, (uint8_t *) &val, sizeof(val));
+    bool ret = _dev->transfer(nullptr, 0, (uint8_t*) &val, sizeof(val));
 
     if (ret) {
         // combine results into distance
@@ -124,10 +122,9 @@ bool AP_RangeFinder_MaxsonarI2CXL::get_reading(uint16_t &reading_cm)
 }
 
 /*
-  timer called at 20Hz
-*/
-void AP_RangeFinder_MaxsonarI2CXL::_timer(void)
-{
+ timer called at 20Hz
+ */
+void AP_RangeFinder_MaxsonarI2CXL::_timer(void) {
     uint16_t d;
     if (get_reading(d)) {
         if (_sem->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
@@ -138,12 +135,10 @@ void AP_RangeFinder_MaxsonarI2CXL::_timer(void)
     }
 }
 
-
 /*
-   update the state of the sensor
-*/
-void AP_RangeFinder_MaxsonarI2CXL::update(void)
-{
+ update the state of the sensor
+ */
+void AP_RangeFinder_MaxsonarI2CXL::update(void) {
     if (_sem->take_nonblocking()) {
         if (new_distance) {
             state.distance_cm = distance;
@@ -152,6 +147,6 @@ void AP_RangeFinder_MaxsonarI2CXL::update(void)
         } else {
             set_status(RangeFinder::RangeFinder_NoData);
         }
-         _sem->give();
+        _sem->give();
     }
 }

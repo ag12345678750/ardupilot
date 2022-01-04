@@ -4,19 +4,22 @@
 #include "RangeFinder_Backend.h"
 #include <AP_HAL/I2CDevice.h>
 
-class AP_RangeFinder_VL53L0X : public AP_RangeFinder_Backend
-{
+class AP_RangeFinder_VL53L0X: public AP_RangeFinder_Backend {
 
 public:
     // static detection function
-    static AP_RangeFinder_Backend *detect(RangeFinder &ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state, AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev);
+    static AP_RangeFinder_Backend* detect(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state,
+            AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev);
 
     // update state
     void update(void);
 
 private:
     // constructor
-    AP_RangeFinder_VL53L0X(RangeFinder &ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state, AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev);
+    AP_RangeFinder_VL53L0X(RangeFinder &ranger, uint8_t instance,
+            RangeFinder::RangeFinder_State &_state,
+            AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev);
 
     void init();
     void timer();
@@ -35,14 +38,14 @@ private:
     void write_register16(uint8_t reg, uint16_t value);
 
     struct SequenceStepEnables {
-        bool tcc:1, msrc:1, dss:1, pre_range:1, final_range:1;
+        bool tcc :1, msrc :1, dss :1, pre_range :1, final_range :1;
     };
 
     struct SequenceStepTimeouts {
         uint16_t pre_range_vcsel_period_pclks, final_range_vcsel_period_pclks;
 
         uint16_t msrc_dss_tcc_mclks, pre_range_mclks, final_range_mclks;
-        uint32_t msrc_dss_tcc_us,    pre_range_us,    final_range_us;
+        uint32_t msrc_dss_tcc_us, pre_range_us, final_range_us;
     };
 
     struct RegData {
@@ -51,22 +54,27 @@ private:
     };
 
     static const RegData tuning_data[];
-    
-    enum vcselPeriodType { VcselPeriodPreRange, VcselPeriodFinalRange };
-    
-    bool get_SPAD_info(uint8_t * count, bool *type_is_aperture);
-    void getSequenceStepEnables(SequenceStepEnables * enables);
+
+    enum vcselPeriodType {
+        VcselPeriodPreRange, VcselPeriodFinalRange
+    };
+
+    bool get_SPAD_info(uint8_t *count, bool *type_is_aperture);
+    void getSequenceStepEnables(SequenceStepEnables *enables);
     uint32_t getMeasurementTimingBudget(void);
-    void getSequenceStepTimeouts(SequenceStepEnables const * enables, SequenceStepTimeouts * timeouts);
+    void getSequenceStepTimeouts(SequenceStepEnables const *enables,
+            SequenceStepTimeouts *timeouts);
     uint8_t getVcselPulsePeriod(vcselPeriodType type);
-    uint32_t timeoutMclksToMicroseconds(uint16_t timeout_period_mclks, uint8_t vcsel_period_pclks);
+    uint32_t timeoutMclksToMicroseconds(uint16_t timeout_period_mclks,
+            uint8_t vcsel_period_pclks);
     uint16_t decodeTimeout(uint16_t reg_val);
     bool setMeasurementTimingBudget(uint32_t budget_us);
-    uint32_t timeoutMicrosecondsToMclks(uint32_t timeout_period_us, uint8_t vcsel_period_pclks);
+    uint32_t timeoutMicrosecondsToMclks(uint32_t timeout_period_us,
+            uint8_t vcsel_period_pclks);
     uint16_t encodeTimeout(uint16_t timeout_mclks);
     bool performSingleRefCalibration(uint8_t vhv_init_byte);
     void start_continuous(void);
-    
+
     uint8_t stop_variable;
     uint32_t measurement_timing_budget_us;
     uint32_t start_ms;
