@@ -9,29 +9,24 @@
 #define DEBUG 0
 #define LOITER_RANGE 60 // for calculating power outside of loiter radius
 #define SERVO_MAX 4500  // This value represents 45 degrees and is just an
-                        // arbitrary representation of servo max travel.
+// arbitrary representation of servo max travel.
 
 // failsafe
 // ----------------------
 enum failsafe_state {
-    FAILSAFE_NONE=0,
-    FAILSAFE_SHORT=1,
-    FAILSAFE_LONG=2,
-    FAILSAFE_GCS=3
+    FAILSAFE_NONE = 0, FAILSAFE_SHORT = 1, FAILSAFE_LONG = 2, FAILSAFE_GCS = 3
 };
-
 
 // GCS failsafe types for FS_GCS_ENABL parameter
 enum gcs_failsafe {
-    GCS_FAILSAFE_OFF        = 0, // no GCS failsafe
-    GCS_FAILSAFE_HEARTBEAT  = 1, // failsafe if we stop receiving heartbeat
-    GCS_FAILSAFE_HB_RSSI    = 2, // failsafe if we stop receiving
-                                 // heartbeat or if RADIO.remrssi
-                                 // drops to 0
-    GCS_FAILSAFE_HB_AUTO    = 3  // failsafe if we stop receiving heartbeat
-                                 // while in AUTO mode
+    GCS_FAILSAFE_OFF = 0, // no GCS failsafe
+    GCS_FAILSAFE_HEARTBEAT = 1, // failsafe if we stop receiving heartbeat
+    GCS_FAILSAFE_HB_RSSI = 2, // failsafe if we stop receiving
+                              // heartbeat or if RADIO.remrssi
+                              // drops to 0
+    GCS_FAILSAFE_HB_AUTO = 3  // failsafe if we stop receiving heartbeat
+                              // while in AUTO mode
 };
-
 
 // active altitude sensor
 // ----------------------
@@ -45,30 +40,30 @@ enum gcs_failsafe {
 #define T7 10000000
 
 enum FlightMode {
-    MANUAL        = 0,
-    CIRCLE        = 1,
-    STABILIZE     = 2,
-    TRAINING      = 3,
-    ACRO          = 4,
+    MANUAL = 0,
+    CIRCLE = 1,
+    STABILIZE = 2,
+    TRAINING = 3,
+    ACRO = 4,
     FLY_BY_WIRE_A = 5,
     FLY_BY_WIRE_B = 6,
-    CRUISE        = 7,
-    AUTOTUNE      = 8,
-    AUTO          = 10,
-    RTL           = 11,
-    LOITER        = 12,
-    AVOID_ADSB    = 14,
-    GUIDED        = 15,
-    INITIALISING  = 16,
-    QSTABILIZE    = 17,
-    QHOVER        = 18,
-    QLOITER       = 19,
-    QLAND         = 20,
-    QRTL          = 21
+    CRUISE = 7,
+    AUTOTUNE = 8,
+    AUTO = 10,
+    RTL = 11,
+    LOITER = 12,
+    AVOID_ADSB = 14,
+    GUIDED = 15,
+    INITIALISING = 16,
+    QSTABILIZE = 17,
+    QHOVER = 18,
+    QLOITER = 19,
+    QLAND = 20,
+    QRTL = 21
 };
 
 enum mode_reason_t {
-    MODE_REASON_UNKNOWN=0,
+    MODE_REASON_UNKNOWN = 0,
     MODE_REASON_TX_COMMAND,
     MODE_REASON_GCS_COMMAND,
     MODE_REASON_RADIO_FAILSAFE,
@@ -88,17 +83,15 @@ enum mode_reason_t {
 
 // type of stick mixing enabled
 enum StickMixing {
-    STICK_MIXING_DISABLED = 0,
-    STICK_MIXING_FBW      = 1,
-    STICK_MIXING_DIRECT   = 2
+    STICK_MIXING_DISABLED = 0, STICK_MIXING_FBW = 1, STICK_MIXING_DIRECT = 2
 };
 
 enum ChannelMixing {
     MIXING_DISABLED = 0,
-    MIXING_UPUP     = 1,
-    MIXING_UPDN     = 2,
-    MIXING_DNUP     = 3,
-    MIXING_DNDN     = 4,
+    MIXING_UPUP = 1,
+    MIXING_UPDN = 2,
+    MIXING_DNUP = 3,
+    MIXING_DNDN = 4,
     MIXING_UPUP_SWP = 5,
     MIXING_UPDN_SWP = 6,
     MIXING_DNUP_SWP = 7,
@@ -123,7 +116,6 @@ typedef enum GeofenceEnableReason {
 #define CH_8_TOGGLE 4
 #define RELAY_TOGGLE 5
 #define STOP_REPEAT 10
-
 
 // Logging message types
 enum log_messages {
@@ -187,14 +179,14 @@ enum log_messages {
 
 // Climb rate calculations
 #define ALTITUDE_HISTORY_LENGTH 8       //Number of (time,altitude) points to
-                                        // regress a climb rate from
+// regress a climb rate from
 
 #define AN4                     4
 #define AN5                     5
 
 #define SPEEDFILT 400                   // centimeters/second; the speed below
-                                        // which a groundstart will be
-                                        // triggered
+// which a groundstart will be
+// triggered
 
 // convert a boolean (0 or 1) to a sign for multiplying (0 maps to 1, 1 maps
 // to -1)
@@ -202,35 +194,34 @@ enum log_messages {
 
 // altitude control algorithms
 enum {
-    ALT_CONTROL_DEFAULT      = 0,
+    ALT_CONTROL_DEFAULT = 0,
     ALT_CONTROL_NON_AIRSPEED = 1,
-    ALT_CONTROL_TECS         = 2,
-    ALT_CONTROL_AIRSPEED     = 3
+    ALT_CONTROL_TECS = 2,
+    ALT_CONTROL_AIRSPEED = 3
 };
 
 // attitude controller choice
 enum {
-    ATT_CONTROL_PID = 0,
-    ATT_CONTROL_APMCONTROL = 1
+    ATT_CONTROL_PID = 0, ATT_CONTROL_APMCONTROL = 1
 };
 
 enum {
     CRASH_DETECT_ACTION_BITMASK_DISABLED = 0,
-    CRASH_DETECT_ACTION_BITMASK_DISARM = (1<<0),
-    // note: next enum will be (1<<1), then (1<<2), then (1<<3)
+    CRASH_DETECT_ACTION_BITMASK_DISARM = (1 << 0),
+// note: next enum will be (1<<1), then (1<<2), then (1<<3)
 };
 
 enum {
-    USE_REVERSE_THRUST_NEVER                    = 0,
-    USE_REVERSE_THRUST_AUTO_ALWAYS              = (1<<0),
-    USE_REVERSE_THRUST_AUTO_LAND_APPROACH       = (1<<1),
-    USE_REVERSE_THRUST_AUTO_LOITER_TO_ALT       = (1<<2),
-    USE_REVERSE_THRUST_AUTO_LOITER_ALL          = (1<<3),
-    USE_REVERSE_THRUST_AUTO_WAYPOINT            = (1<<4),
-    USE_REVERSE_THRUST_LOITER                   = (1<<5),
-    USE_REVERSE_THRUST_RTL                      = (1<<6),
-    USE_REVERSE_THRUST_CIRCLE                   = (1<<7),
-    USE_REVERSE_THRUST_CRUISE                   = (1<<8),
-    USE_REVERSE_THRUST_FBWB                     = (1<<9),
-    USE_REVERSE_THRUST_GUIDED                   = (1<<10),
+    USE_REVERSE_THRUST_NEVER = 0,
+    USE_REVERSE_THRUST_AUTO_ALWAYS = (1 << 0),
+    USE_REVERSE_THRUST_AUTO_LAND_APPROACH = (1 << 1),
+    USE_REVERSE_THRUST_AUTO_LOITER_TO_ALT = (1 << 2),
+    USE_REVERSE_THRUST_AUTO_LOITER_ALL = (1 << 3),
+    USE_REVERSE_THRUST_AUTO_WAYPOINT = (1 << 4),
+    USE_REVERSE_THRUST_LOITER = (1 << 5),
+    USE_REVERSE_THRUST_RTL = (1 << 6),
+    USE_REVERSE_THRUST_CIRCLE = (1 << 7),
+    USE_REVERSE_THRUST_CRUISE = (1 << 8),
+    USE_REVERSE_THRUST_FBWB = (1 << 9),
+    USE_REVERSE_THRUST_GUIDED = (1 << 10),
 };

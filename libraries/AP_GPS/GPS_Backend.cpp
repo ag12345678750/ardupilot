@@ -36,6 +36,9 @@ AP_GPS_Backend::AP_GPS_Backend(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::
     state.have_speed_accuracy = false;
     state.have_horizontal_accuracy = false;
     state.have_vertical_accuracy = false;
+
+    char buffer[128];
+    hal.util->snprintf(buffer, 128, "ALEX %d - Inside AP_GPS_Backend", 123);
 }
 
 int32_t AP_GPS_Backend::swap_int32(int32_t v) const
@@ -143,11 +146,12 @@ void AP_GPS_Backend::_detection_message(char *buffer, const uint8_t buflen) cons
 
     if (dstate.auto_detected_baud) {
         hal.util->snprintf(buffer, buflen,
-                 "GPS %d: detected as %s at %d baud",
+                 "GPS %d: detected_2 as %s at %d baud",
                  instance + 1,
                  name(),
                  gps._baudrates[dstate.current_baud]);
-    } else {
+    }
+    else {
         hal.util->snprintf(buffer, buflen,
                  "GPS %d: specified as %s",
                  instance + 1,

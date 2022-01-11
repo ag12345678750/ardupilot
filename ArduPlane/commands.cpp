@@ -7,8 +7,7 @@
 /*
  *  set_next_WP - sets the target location the vehicle should fly to
  */
-void Plane::set_next_WP(const struct Location &loc)
-{
+void Plane::set_next_WP(const struct Location &loc) {
     if (auto_state.next_wp_no_crosstrack) {
         // we should not try to cross-track for this waypoint
         prev_WP_loc = current_loc;
@@ -68,8 +67,7 @@ void Plane::set_next_WP(const struct Location &loc)
     loiter_angle_reset();
 }
 
-void Plane::set_guided_WP(void)
-{
+void Plane::set_guided_WP(void) {
     if (aparm.loiter_radius < 0 || guided_WP_loc.flags.loiter_ccw) {
         loiter.direction = -1;
     } else {
@@ -96,14 +94,13 @@ void Plane::set_guided_WP(void)
 
     // start in non-VTOL mode
     auto_state.vtol_loiter = false;
-    
+
     loiter_angle_reset();
 }
 
 // run this at setup on the ground
 // -------------------------------
-void Plane::init_home()
-{
+void Plane::init_home() {
     gcs().send_text(MAV_SEVERITY_INFO, "Init HOME");
 
     ahrs.set_home(gps.location());
@@ -120,12 +117,11 @@ void Plane::init_home()
 }
 
 /*
-  update home location from GPS
-  this is called as long as we have 3D lock and the arming switch is
-  not pushed
-*/
-void Plane::update_home()
-{
+ update home location from GPS
+ this is called as long as we have 3D lock and the arming switch is
+ not pushed
+ */
+void Plane::update_home() {
     if (fabsf(barometer.get_altitude()) > 2) {
         // don't auto-update if we have changed barometer altitude
         // significantly. This allows us to cope with slow baro drift
@@ -135,7 +131,7 @@ void Plane::update_home()
     }
     if (home_is_set == HOME_SET_NOT_LOCKED) {
         Location loc;
-        if(ahrs.get_position(loc)) {
+        if (ahrs.get_position(loc)) {
             ahrs.set_home(loc);
             Log_Write_Home_And_Origin();
             gcs().send_home(loc);

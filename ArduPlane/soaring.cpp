@@ -1,20 +1,20 @@
 #include "Plane.h"
 
 /*
-*  ArduSoar support function
-*
-*  Peter Braswell, Samuel Tabor, Andrey Kolobov, and Iain Guilliard
-*/
+ *  ArduSoar support function
+ *
+ *  Peter Braswell, Samuel Tabor, Andrey Kolobov, and Iain Guilliard
+ */
 void Plane::update_soaring() {
-    
+
     if (!g2.soaring_controller.is_active()) {
         return;
     }
-    
+
     g2.soaring_controller.update_vario();
 
     // Check for throttle suppression change.
-    switch (control_mode){
+    switch (control_mode) {
     case AUTO:
         g2.soaring_controller.suppress_throttle();
         break;
@@ -36,11 +36,12 @@ void Plane::update_soaring() {
     }
 
     // Nothing to do if we are in powered flight
-    if (!g2.soaring_controller.get_throttle_suppressed() && aparm.throttle_max > 0) {
+    if (!g2.soaring_controller.get_throttle_suppressed()
+            && aparm.throttle_max > 0) {
         return;
     }
 
-    switch (control_mode){
+    switch (control_mode) {
     case AUTO:
     case FLY_BY_WIRE_B:
     case CRUISE:
@@ -48,7 +49,8 @@ void Plane::update_soaring() {
         g2.soaring_controller.update_cruising();
 
         if (g2.soaring_controller.check_thermal_criteria()) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Soaring: Thermal detected, entering loiter");
+            gcs().send_text(MAV_SEVERITY_INFO,
+                    "Soaring: Thermal detected, entering loiter");
             set_mode(LOITER, MODE_REASON_SOARING_THERMAL_DETECTED);
         }
         break;
@@ -61,23 +63,29 @@ void Plane::update_soaring() {
             // Exit as soon as thermal state estimate deteriorates
             switch (previous_mode) {
             case FLY_BY_WIRE_B:
-                gcs().send_text(MAV_SEVERITY_INFO, "Soaring: Thermal ended, entering RTL");
-                set_mode(RTL, MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
+                gcs().send_text(MAV_SEVERITY_INFO,
+                        "Soaring: Thermal ended, entering RTL");
+                set_mode(RTL,
+                        MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
                 break;
 
             case CRUISE: {
                 // return to cruise with old ground course
                 CruiseState cruise = cruise_state;
-                gcs().send_text(MAV_SEVERITY_INFO, "Soaring: Thermal ended, restoring CRUISE");
-                set_mode(CRUISE, MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
+                gcs().send_text(MAV_SEVERITY_INFO,
+                        "Soaring: Thermal ended, restoring CRUISE");
+                set_mode(CRUISE,
+                        MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
                 cruise_state = cruise;
                 set_target_altitude_current();
                 break;
             }
 
             case AUTO:
-                gcs().send_text(MAV_SEVERITY_INFO, "Soaring: Thermal ended, restoring AUTO");
-                set_mode(AUTO, MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
+                gcs().send_text(MAV_SEVERITY_INFO,
+                        "Soaring: Thermal ended, restoring AUTO");
+                set_mode(AUTO,
+                        MODE_REASON_SOARING_THERMAL_ESTIMATE_DETERIORATED);
                 break;
 
             default:

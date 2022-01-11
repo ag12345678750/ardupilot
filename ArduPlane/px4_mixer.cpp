@@ -1,13 +1,13 @@
 #include "Plane.h"
 
 /*
-  handle creation of PX4 mixer file, for failover to direct RC control
-  on failure of FMU
+ handle creation of PX4 mixer file, for failover to direct RC control
+ on failure of FMU
 
-  This will create APM/MIXER.MIX on the microSD card. The user may
-  also create APM/CUSTOM.MIX, and if it exists that will be used
-  instead. That allows the user to setup more complex failsafe mixes
-  that include flaps, landing gear, ignition cut etc
+ This will create APM/MIXER.MIX on the microSD card. The user may
+ also create APM/CUSTOM.MIX, and if it exists that will be used
+ instead. That allows the user to setup more complex failsafe mixes
+ that include flaps, landing gear, ignition cut etc
  */
 
 #if HAVE_PX4_MIXER

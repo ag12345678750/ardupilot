@@ -17,6 +17,7 @@
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
 #include "RangeFinder.h"
+// #include "AP_RangeFinder_TFMini.h"
 
 class AP_RangeFinder_Backend {
 public:
@@ -24,7 +25,7 @@ public:
     AP_RangeFinder_Backend(RangeFinder &_ranger,
             uint8_t instance,
             RangeFinder::RangeFinder_State &_state,
-            MAV_DISTANCE_SENSOR _sensor_type);
+            MAV_DISTANCE_SENSOR model);
 
     // we declare a virtual destructor so that RangeFinder drivers can
     // override with a custom destructor if need be
@@ -58,6 +59,7 @@ protected:
 
     RangeFinder &ranger;
     RangeFinder::RangeFinder_State &state;
+    uint8_t model;
     MAV_DISTANCE_SENSOR sensor_type;
 
     // semaphore for access to shared frontend data

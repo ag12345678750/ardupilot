@@ -34,7 +34,6 @@ public:
     static const uint16_t k_format_version = 13;
     //////////////////////////////////////////////////////////////////
 
-
     // The parameter software_type is set up solely for ground station use
     // and identifies the software type (eg ArduPilotMega versus ArduCopterMega)
     // GCS will interpret values 0-9 as ArduPilotMega.  Developers may use
@@ -57,7 +56,7 @@ public:
 
         // Misc
         //
-        k_param_auto_trim      = 10,
+        k_param_auto_trim = 10,
         k_param_log_bitmask_old,  // unused
         k_param_pitch_trim_cd,
         k_param_mix_mode,
@@ -71,7 +70,7 @@ public:
         k_param_reset_switch_chan,
         k_param_manual_level, // unused
         k_param_land_pitch_cd,  // unused - moved to AP_Landing
-        k_param_ins_old,            // *** Deprecated, remove with next eeprom number change
+        k_param_ins_old, // *** Deprecated, remove with next eeprom number change
         k_param_stick_mixing,
         k_param_reset_mission_chan,
         k_param_land_flare_alt, // unused - moved to AP_Landing
@@ -97,7 +96,7 @@ public:
         k_param_skip_gyro_cal, // unused
         k_param_auto_fbw_steer,
         k_param_waypoint_max_radius,
-        k_param_ground_steer_alt,        
+        k_param_ground_steer_alt,
         k_param_ground_steer_dps,
         k_param_rally_limit_km_old, //unused anymore -- just holding this index
         k_param_hil_err_limit,
@@ -177,7 +176,7 @@ public:
         //
         k_param_airspeed_min = 120,
         k_param_airspeed_max,
-        k_param_FBWB_min_altitude_cm,  // 0=disabled, minimum value for altitude in cm (for first time try 30 meters = 3000 cm)
+        k_param_FBWB_min_altitude_cm, // 0=disabled, minimum value for altitude in cm (for first time try 30 meters = 3000 cm)
         k_param_flybywire_elev_reverse,
         k_param_alt_control_algorithm,
         k_param_flybywire_climb_rate,
@@ -225,7 +224,6 @@ public:
         k_param_min_gndspeed_cm,
         k_param_crosstrack_use_wind, // unused
 
-
         //
         // Camera and mount parameters
         //
@@ -240,7 +238,7 @@ public:
         // Battery monitoring parameters
         //
         k_param_battery = 166,
-        k_param_rssi_pin,               // unused, replaced by rssi_ library parameters - 167
+        k_param_rssi_pin,  // unused, replaced by rssi_ library parameters - 167
         k_param_battery_volt_pin,       // unused - 168
         k_param_battery_curr_pin,       // unused - 169
 
@@ -305,7 +303,7 @@ public:
         k_param_flight_mode5,
         k_param_flight_mode6,
         k_param_initial_mode,
-        k_param_land_slope_recalc_shallow_threshold,    // unused - moved to AP_Landing
+        k_param_land_slope_recalc_shallow_threshold, // unused - moved to AP_Landing
         k_param_land_slope_recalc_steep_threshold_to_abort, // unused - moved to AP_Landing
 
         //
@@ -350,7 +348,7 @@ public:
 
         k_param_DataFlash = 253, // Logging Group
 
-        // 254,255: reserved
+    // 254,255: reserved
     };
 
     AP_Int16 format_version;
@@ -367,9 +365,9 @@ public:
 
     AP_Float hil_err_limit;
 
-    AP_Int8  rtl_autoland;
+    AP_Int8 rtl_autoland;
 
-    AP_Int8  crash_accel_threshold;
+    AP_Int8 crash_accel_threshold;
 
     // Feed-forward gains
     //
@@ -384,16 +382,16 @@ public:
     AP_Float scaling_speed;
 
     // navigation controller type. See AP_Navigation::ControllerType
-    AP_Int8  nav_controller;
+    AP_Int8 nav_controller;
 
     // attitude controller type.
-    AP_Int8  att_controller;
+    AP_Int8 att_controller;
 
-    AP_Int8  auto_fbw_steer;
+    AP_Int8 auto_fbw_steer;
 
     // Estimation
     //
-    AP_Int8  alt_control_algorithm;
+    AP_Int8 alt_control_algorithm;
 
     // Waypoints
     //
@@ -452,7 +450,7 @@ public:
     AP_Int16 alt_offset;
     AP_Int16 acro_roll_rate;
     AP_Int16 acro_pitch_rate;
-    AP_Int8  acro_locking;
+    AP_Int8 acro_locking;
 
     // Misc
     //
@@ -468,7 +466,7 @@ public:
     AP_Int32 RTL_altitude_cm;
     AP_Int16 pitch_trim_cd;
     AP_Int16 FBWB_min_altitude_cm;
-    AP_Int8  hil_servos;
+    AP_Int8 hil_servos;
 #if HIL_SUPPORT
     AP_Int8  hil_mode;
 #endif
@@ -478,8 +476,8 @@ public:
     AP_Int8 flap_1_speed;
     AP_Int8 flap_2_percent;
     AP_Int8 flap_2_speed;
-    AP_Int8 takeoff_flap_percent;  
-    AP_Int8 inverted_flight_ch;             // 0=disabled, 1-8 is channel for inverted flight trigger
+    AP_Int8 takeoff_flap_percent;
+    AP_Int8 inverted_flight_ch; // 0=disabled, 1-8 is channel for inverted flight trigger
     AP_Int8 stick_mixing;
     AP_Float takeoff_throttle_min_speed;
     AP_Float takeoff_throttle_min_accel;
@@ -509,7 +507,7 @@ public:
 };
 
 /*
-  2nd block of parameters, to avoid going past 256 top level keys
+ 2nd block of parameters, to avoid going past 256 top level keys
  */
 class ParametersG2 {
 public:
@@ -529,13 +527,13 @@ public:
 
     // RC input channels
     RC_Channels rc_channels;
-    
+
     // control over servo output ranges
     SRV_Channels servo_channels;
 
     // whether to enforce acceptance of packets only from sysid_my_gcs
     AP_Int8 sysid_enforce;
-    
+
     // ArduSoar parameters
     SoaringController soaring_controller;
 

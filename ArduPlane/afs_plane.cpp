@@ -16,7 +16,7 @@ AP_AdvancedFailsafe_Plane::AP_AdvancedFailsafe_Plane(AP_Mission &_mission, AP_Ba
 void AP_AdvancedFailsafe_Plane::terminate_vehicle(void)
 {
     plane.g2.servo_channels.disable_passthrough(true);
-    
+
     // and all aux channels
     SRV_Channels::set_output_scaled(SRV_Channel::k_flap_auto, 100);
     SRV_Channels::set_output_scaled(SRV_Channel::k_flap, 100);
@@ -29,7 +29,7 @@ void AP_AdvancedFailsafe_Plane::terminate_vehicle(void)
     plane.servos_output();
 
     plane.quadplane.afs_terminate();
-    
+
     // also disarm to ensure that ignition is cut
     plane.disarm_motors();
 }

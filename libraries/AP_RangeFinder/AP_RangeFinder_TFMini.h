@@ -3,7 +3,8 @@
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
 
-class AP_RangeFinder_TFMini: public AP_RangeFinder_Backend {
+class AP_RangeFinder_TFMini: public AP_RangeFinder_Backend
+{
 
 public:
 
@@ -17,8 +18,7 @@ public:
     AP_RangeFinder_TFMini(RangeFinder &ranger, 
             uint8_t instance, 
             RangeFinder::RangeFinder_State &_state,
-            AP_SerialManager &serial_manager, 
-            benewake_model_type model);   // BENEWAKE_TFmini
+            MAV_DISTANCE_SENSOR model);
 
     // static detection function
     static bool detect(RangeFinder &ranger, uint8_t instance);
@@ -26,12 +26,13 @@ public:
     // update state
     void update(void);
 
-// private:   // Temporary
+private:   // Temporary
     // get a reading
     // distance returned in reading_cm
     bool get_reading(uint16_t &reading_cm);
 
     AP_HAL::UARTDriver *uart = nullptr;
+    MAV_DISTANCE_SENSOR s_model_type;
     benewake_model_type model_type;
     uint32_t last_reading_ms = 0;
     char linebuf[10];

@@ -287,7 +287,7 @@ void AP_GPS::init(const AP_SerialManager& serial_manager)
     }
 
     // sanity check update rate
-    for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
+    for (uint8_t i = 0; i < GPS_MAX_RECEIVERS; i++) {
         if (_rate_ms[i] <= 0 || _rate_ms[i] > GPS_MAX_RATE_MS) {
             _rate_ms[i] = GPS_MAX_RATE_MS;
         }
@@ -332,7 +332,6 @@ bool AP_GPS::vertical_accuracy(uint8_t instance, float &vacc) const
     }
     return false;
 }
-
 
 /**
    convert GPS week and milliseconds to unix epoch in milliseconds

@@ -100,8 +100,10 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Values: -1:None, 1:MAVLink1, 2:MAVLink2, 3:Frsky D, 4:Frsky SPort, 5:GPS, 7:Alexmos Gimbal Serial, 8:SToRM32 Gimbal Serial, 9:Lidar, 10:FrSky SPort Passthrough (OpenTX), 11:Lidar360, 12:Aerotenna uLanding, 13:Beacon
     // @User: Standard
     // @RebootRequired: True
-    AP_GROUPINFO("4_PROTOCOL",  7, AP_SerialManager, state[4].protocol, SerialProtocol_GPS),
 
+
+    // AP_GROUPINFO("4_PROTOCOL",  7, AP_SerialManager, state[4].protocol, SerialProtocol_GPS),
+    AP_GROUPINFO("4_PROTOCOL",  7, AP_SerialManager, state[4].protocol, SerialProtocol_TFMini),  // Alex 4.1.22 - May be MAVLink
     // @Param: 4_BAUD
     // @DisplayName: Serial 4 Baud Rate
     // @Description: The baud rate used for Serial4. The APM2 can support all baudrates up to 115, and also can support 500. The PX4 can support rates of up to 1500. If you setup a rate you cannot support on APM2 and then can't connect to your board you should load a firmware from a different vehicle type. That will reset all your parameters to defaults.
@@ -123,15 +125,6 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
     // @User: Standard
     AP_GROUPINFO("5_BAUD", 10, AP_SerialManager, state[5].baud, SERIAL5_BAUD),
-
-    // @Param: 5_BAUD
-    // @DisplayName: Serial 4 Protocol Selection
-    // @Description: Control what protocol Serial 3 (GPS) should be used for.
-    // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
-    // @User: Standard
-    AP_GROUPINFO("6_PROTOCOL", 12, AP_SerialManager, state[6].protocol, SerialProtocol_TFMini),
-
-    // index 11 used by 0_PROTOCOL
     
     AP_GROUPEND
 };
@@ -141,6 +134,11 @@ AP_SerialManager::AP_SerialManager()
 {
     // setup parameter defaults
     AP_Param::setup_object_defaults(this, var_info);
+
+
+    char buffer[64];
+    hal.util->snprintf(buffer, sizeof(buffer), "Inside AP_SerialManager");
+
 }
 
 // init_console - initialise console at default baud rate
@@ -207,6 +205,8 @@ void AP_SerialManager::init()
                     state[i].uart->begin(map_baudrate(state[i].baud), 
                                          AP_SERIALMANAGER_GPS_BUFSIZE_RX,
                                          AP_SERIALMANAGER_GPS_BUFSIZE_TX);
+                    char buffer[64];
+                    hal.util->snprintf(buffer, sizeof(buffer), "Inside SerialProtocol_TFMini");
                     break;
                 case SerialProtocol_AlexMos:
                     // Note baudrate is hardcoded to 115200
@@ -394,10 +394,12 @@ bool AP_SerialManager::protocol_match(enum SerialProtocol protocol1, enum Serial
     // gps match
     if (((protocol1 == SerialProtocol_GPS) || (protocol1 == SerialProtocol_GPS2)) &&
         ((protocol2 == SerialProtocol_GPS) || (protocol2 == SerialProtocol_GPS2))) {
+        char buffer[64];
+        hal.util->snprintf(buffer, sizeof(buffer), "Inside SerialProtocol_GPS");
         return true;
     }
 
-    // gps match
+    // tfmini match
     if (protocol1 == SerialProtocol_TFMini && protocol2 == SerialProtocol_TFMini) {
         return true;
     }

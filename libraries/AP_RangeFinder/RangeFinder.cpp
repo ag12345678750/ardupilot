@@ -13,6 +13,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// #include "Plane.h"
+
 #include "RangeFinder.h"
 #include "AP_RangeFinder_analog.h"
 #include "AP_RangeFinder_PulsedLightLRF.h"
@@ -28,8 +30,19 @@
 #include "AP_RangeFinder_uLanding.h"
 #include "AP_RangeFinder_trone.h"
 #include "AP_RangeFinder_VL53L0X.h"
-#include <AP_BoardConfig/AP_BoardConfig.h>
 #include "AP_RangeFinder_TFMini.h"
+#include <AP_BoardConfig/AP_BoardConfig.h>
+
+#include <AP_Common/AP_Common.h>
+#include <AP_HAL/AP_HAL.h>
+#include <AP_Param/AP_Param.h>
+#include <AP_Math/AP_Math.h>
+#include <AP_SerialManager/AP_SerialManager.h>
+
+#include "RangeFinder_Backend.h"
+
+//alex added
+#include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL &hal;
 
@@ -79,7 +92,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Units: cm
                 // @Increment: 1
                 // @User: Standard
-                        AP_GROUPINFO("_MIN_CM", 5, RangeFinder, _min_distance_cm[0], 20),
+                AP_GROUPINFO("_MIN_CM", 5, RangeFinder, _min_distance_cm[0], 20),
 
                 // @Param: _MAX_CM
                 // @DisplayName: Rangefinder maximum distance
@@ -87,8 +100,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Units: cm
                 // @Increment: 1
                 // @User: Standard
-                        AP_GROUPINFO("_MAX_CM", 6, RangeFinder,
-                                _max_distance_cm[0], 700),
+                AP_GROUPINFO("_MAX_CM", 6, RangeFinder, _max_distance_cm[0], 700),
 
                 // @Param: _STOP_PIN
                 // @DisplayName: Rangefinder stop pin
@@ -161,16 +173,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Description: Orientation of rangefinder
                 // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
                 // @User: Advanced
-                        AP_GROUPINFO("_ORIENT", 53, RangeFinder,
-                                _orientation[0], ROTATION_PITCH_270),
-
-                // @Param: _ORIENT
-                // @DisplayName: Rangefinder orientation
-                // @Description: Orientation of rangefinder
-                // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
-                // @User: Advanced
-                        AP_GROUPINFO("_ORIENT", 53, RangeFinder,
-                                _orientation[0], ROTATION_PITCH_270),
+                AP_GROUPINFO("_ORIENT", 53, RangeFinder, _orientation[0], ROTATION_PITCH_270),
 
 #if RANGEFINDER_MAX_INSTANCES > 1
                 // @Param: 2_TYPE
@@ -239,7 +242,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Units: ms
                 // @Increment: 1
                 // @User: Advanced
-                        AP_GROUPINFO("2_SETTLE", 20, RangeFinder, _settle_time_ms[1], 0),
+                AP_GROUPINFO("2_SETTLE", 20, RangeFinder, _settle_time_ms[1], 0),
 
                 // @Param: 2_RMETRIC
                 // @DisplayName: Ratiometric
@@ -255,7 +258,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Range: 0 127
                 // @Increment: 1
                 // @User: Advanced
-                        AP_GROUPINFO("2_GNDCLEAR", 22, RangeFinder,
+                AP_GROUPINFO("2_GNDCLEAR", 22, RangeFinder,
                                 _ground_clearance_cm[1],
                                 RANGEFINDER_GROUND_CLEARANCE_CM_DEFAULT),
 
@@ -291,7 +294,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] =
                 // @Description: Orientation of 2nd rangefinder
                 // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
                 // @User: Advanced
-                        AP_GROUPINFO("2_ORIENT", 54, RangeFinder,
+                AP_GROUPINFO("2_ORIENT", 54, RangeFinder,
                                 _orientation[1], ROTATION_PITCH_270),
 #endif
 
@@ -543,6 +546,11 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager,
         enum Rotation orientation_default) :
         num_instances(0), estimated_terrain_height(0), serial_manager(
                 _serial_manager) {
+
+    // char* buffer = new char[128];
+    // hal.util->snprintf(buffer, 128, "ALEX 4 - my test in RangeFinder");
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in RangeFinder");
+
     AP_Param::setup_object_defaults(this, var_info);
 
     // set orientation defaults
@@ -561,6 +569,7 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager,
  rangefinders.
  */
 void RangeFinder::init(void) {
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"alex 85 in range init");
     if (num_instances != 0) {
         // init called a 2nd time?
         return;
@@ -588,9 +597,19 @@ void RangeFinder::init(void) {
  around 10Hz by main loop
  */
 void RangeFinder::update(void) {
+    static int count = 0;
+    count++;
+    if (count == 200)
+    {
+        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in range finder");
+        count = 0;
+    }
     for (uint8_t i = 0; i < num_instances; i++) {
+
         if (drivers[i] != nullptr) {
+
             if (_type[i] == RangeFinder_TYPE_NONE) {
+
                 // allow user to disable a rangefinder at runtime
                 state[i].status = RangeFinder_NotConnected;
                 state[i].range_valid_count = 0;
@@ -618,6 +637,10 @@ bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend) {
  detect if an instance of a rangefinder is connected. 
  */
 void RangeFinder::detect_instance(uint8_t instance) {
+    //info alex
+    // char buffer[128];
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"alex 5 in detect_instance");
+
     enum RangeFinder_Type type = (enum RangeFinder_Type) _type[instance].get();
     switch (type) {
     case RangeFinder_TYPE_PLI2C:
@@ -680,6 +703,9 @@ void RangeFinder::detect_instance(uint8_t instance) {
         break;
 #endif
     case RangeFinder_TYPE_LWSER:
+        //info alex
+        // hal.util->snprintf(buffer, 128, "ALEX %d - LightWareSerial init", 123);
+        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_LWSER");
         if (AP_RangeFinder_LightWareSerial::detect(*this, instance,
                 serial_manager)) {
             state[instance].instance = instance;
@@ -733,12 +759,14 @@ void RangeFinder::detect_instance(uint8_t instance) {
         }
         break;
     case RangeFinder_TYPE_TFMini:
-        if (AP_RangeFinder_TFMini::detect(*this, instance)) {
-             state[instance].instance = instance;
-             drivers[instance] = new AP_RangeFinder_TFMini(*this, instance, state[instance], serial_manager, AP_RangeFinder_TFMini::BENEWAKE_TFmini);
+        // hal.util->snprintf(buffer, 128, "ALEX %d - IN TFMini init", 123);
+        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_TFMini");
+        if (AP_RangeFinder_TFMini::detect(*this, instance))
+        {
+            state[instance].instance = instance;
+            drivers[instance] = new AP_RangeFinder_TFMini(*this, instance, state[instance], MAV_DISTANCE_SENSOR_LASER);
          }
         break;
-
     default:
         break;
     }

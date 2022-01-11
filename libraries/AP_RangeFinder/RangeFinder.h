@@ -71,13 +71,13 @@ public:
 
     // The RangeFinder_State structure is filled in by the backend driver
     struct RangeFinder_State {
-        uint8_t instance;    // the instance number of this RangeFinder
+        uint8_t  instance;    // the instance number of this RangeFinder
         uint16_t distance_cm; // distance: in cm
         uint16_t voltage_mv;  // voltage in millivolts,
                               // if applicable, otherwise 0
         enum RangeFinder_Status status;     // sensor status
-        uint8_t range_valid_count; // number of consecutive valid readings (maxes out at 10)
-        bool pre_arm_check;   // true if sensor has passed pre-arm checks
+        uint8_t  range_valid_count; // number of consecutive valid readings (maxes out at 10)
+        bool     pre_arm_check;   // true if sensor has passed pre-arm checks
         uint16_t pre_arm_distance_min; // min distance captured during pre-arm checks
         uint16_t pre_arm_distance_max; // max distance captured during pre-arm checks
     };
@@ -199,7 +199,9 @@ private:
     AP_RangeFinder_Backend *drivers[RANGEFINDER_MAX_INSTANCES];
     uint8_t num_instances:3;
     float estimated_terrain_height;
+public:  // Alex 9.1.22
     AP_SerialManager &serial_manager;
+private:
     Vector3f pos_offset_zero;   // allows returning position offsets of zero for invalid requests
 
     void detect_instance(uint8_t instance);

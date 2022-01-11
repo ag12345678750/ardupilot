@@ -18,6 +18,9 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <ctype.h>
 
+//alex added
+#include <GCS_MAVLink/GCS.h>
+
 extern const AP_HAL::HAL &hal;
 
 /* 
@@ -53,6 +56,9 @@ bool AP_RangeFinder_LightWareSerial::detect(RangeFinder &_ranger,
 
 // read - return last value measured by sensor
 bool AP_RangeFinder_LightWareSerial::get_reading(uint16_t &reading_cm) {
+    // char buffer[128];
+    // hal.util->snprintf(buffer, 128, "ALEX 2 %d - LightWareSerial", 123);
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in get_reading");
     if (uart == nullptr) {
         return false;
     }

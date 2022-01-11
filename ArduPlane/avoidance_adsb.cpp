@@ -1,16 +1,14 @@
-
 #include <stdio.h>
 #include "Plane.h"
 
-void Plane::avoidance_adsb_update(void)
-{
+void Plane::avoidance_adsb_update(void) {
     adsb.update();
     avoidance_adsb.update();
 }
 
-
-MAV_COLLISION_ACTION AP_Avoidance_Plane::handle_avoidance(const AP_Avoidance::Obstacle *obstacle, MAV_COLLISION_ACTION requested_action)
-{
+MAV_COLLISION_ACTION AP_Avoidance_Plane::handle_avoidance(
+        const AP_Avoidance::Obstacle *obstacle,
+        MAV_COLLISION_ACTION requested_action) {
     MAV_COLLISION_ACTION actual_action = requested_action;
     bool failsafe_state_change = false;
 
@@ -23,86 +21,87 @@ MAV_COLLISION_ACTION AP_Avoidance_Plane::handle_avoidance(const AP_Avoidance::Ob
     }
 
     // take no action in some flight modes
-    if (plane.control_mode == MANUAL ||
-        (plane.control_mode == AUTO && !plane.auto_state.takeoff_complete) ||
-        (plane.flight_stage == AP_Vehicle::FixedWing::FLIGHT_LAND) || // TODO: consider allowing action during approach
-        plane.control_mode == AUTOTUNE ||
-        plane.control_mode == QLAND) {
+    if (plane.control_mode == MANUAL
+            || (plane.control_mode == AUTO && !plane.auto_state.takeoff_complete)
+            || (plane.flight_stage == AP_Vehicle::FixedWing::FLIGHT_LAND) || // TODO: consider allowing action during approach
+            plane.control_mode == AUTOTUNE || plane.control_mode == QLAND) {
         actual_action = MAV_COLLISION_ACTION_NONE;
     }
 
     // take action based on requested action
     switch (actual_action) {
 
-        case MAV_COLLISION_ACTION_RTL:
-            if (failsafe_state_change) {
-                plane.set_mode(RTL, MODE_REASON_AVOIDANCE);
-            }
-            break;
+    case MAV_COLLISION_ACTION_RTL:
+        if (failsafe_state_change) {
+            plane.set_mode(RTL, MODE_REASON_AVOIDANCE);
+        }
+        break;
 
-        case MAV_COLLISION_ACTION_HOVER:
-            if (failsafe_state_change) {
-                if (plane.quadplane.is_flying()) {
-                    plane.set_mode(QLOITER, MODE_REASON_AVOIDANCE);
-                } else {
-                    plane.set_mode(LOITER, MODE_REASON_AVOIDANCE);
-                }
-            }
-            break;
-
-        case MAV_COLLISION_ACTION_ASCEND_OR_DESCEND:
-            // climb or descend to avoid obstacle
-            if (handle_avoidance_vertical(obstacle, failsafe_state_change)) {
-                plane.set_guided_WP();
+    case MAV_COLLISION_ACTION_HOVER:
+        if (failsafe_state_change) {
+            if (plane.quadplane.is_flying()) {
+                plane.set_mode(QLOITER, MODE_REASON_AVOIDANCE);
             } else {
-                actual_action = MAV_COLLISION_ACTION_NONE;
-            }
-            break;
-
-        case MAV_COLLISION_ACTION_MOVE_HORIZONTALLY:
-            // move horizontally to avoid obstacle
-            if (handle_avoidance_horizontal(obstacle, failsafe_state_change)) {
-                plane.set_guided_WP();
-            } else {
-                actual_action = MAV_COLLISION_ACTION_NONE;
-            }
-            break;
-
-        case MAV_COLLISION_ACTION_MOVE_PERPENDICULAR:
-        {
-            // move horizontally and vertically to avoid obstacle
-            const bool success_vert = handle_avoidance_vertical(obstacle, failsafe_state_change);
-            const bool success_hor = handle_avoidance_horizontal(obstacle, failsafe_state_change);
-            if (success_vert || success_hor) {
-                plane.set_guided_WP();
-            } else {
-                actual_action = MAV_COLLISION_ACTION_NONE;
+                plane.set_mode(LOITER, MODE_REASON_AVOIDANCE);
             }
         }
-            break;
+        break;
+
+    case MAV_COLLISION_ACTION_ASCEND_OR_DESCEND:
+        // climb or descend to avoid obstacle
+        if (handle_avoidance_vertical(obstacle, failsafe_state_change)) {
+            plane.set_guided_WP();
+        } else {
+            actual_action = MAV_COLLISION_ACTION_NONE;
+        }
+        break;
+
+    case MAV_COLLISION_ACTION_MOVE_HORIZONTALLY:
+        // move horizontally to avoid obstacle
+        if (handle_avoidance_horizontal(obstacle, failsafe_state_change)) {
+            plane.set_guided_WP();
+        } else {
+            actual_action = MAV_COLLISION_ACTION_NONE;
+        }
+        break;
+
+    case MAV_COLLISION_ACTION_MOVE_PERPENDICULAR: {
+        // move horizontally and vertically to avoid obstacle
+        const bool success_vert = handle_avoidance_vertical(obstacle,
+                failsafe_state_change);
+        const bool success_hor = handle_avoidance_horizontal(obstacle,
+                failsafe_state_change);
+        if (success_vert || success_hor) {
+            plane.set_guided_WP();
+        } else {
+            actual_action = MAV_COLLISION_ACTION_NONE;
+        }
+    }
+        break;
 
         // unsupported actions and those that require no response
-        case MAV_COLLISION_ACTION_NONE:
-            return actual_action;
-        case MAV_COLLISION_ACTION_REPORT:
-        default:
-            break;
+    case MAV_COLLISION_ACTION_NONE:
+        return actual_action;
+    case MAV_COLLISION_ACTION_REPORT:
+    default:
+        break;
     }
 
     if (failsafe_state_change) {
-        gcs().send_text(MAV_SEVERITY_ALERT, "Avoid: Performing action: %d", actual_action);
+        gcs().send_text(MAV_SEVERITY_ALERT, "Avoid: Performing action: %d",
+                actual_action);
     }
 
     // return with action taken
     return actual_action;
 }
 
-void AP_Avoidance_Plane::handle_recovery(uint8_t recovery_action)
-{
+void AP_Avoidance_Plane::handle_recovery(uint8_t recovery_action) {
     // check we are coming out of failsafe
     if (plane.failsafe.adsb) {
         plane.failsafe.adsb = false;
-        gcs().send_text(MAV_SEVERITY_INFO, "Avoid: Resuming with action: %d", recovery_action);
+        gcs().send_text(MAV_SEVERITY_INFO, "Avoid: Resuming with action: %d",
+                recovery_action);
 
         // restore flight mode if requested and user has not changed mode since
         if (plane.control_mode_reason == MODE_REASON_AVOIDANCE) {
@@ -113,7 +112,8 @@ void AP_Avoidance_Plane::handle_recovery(uint8_t recovery_action)
                 break;
 
             case AP_AVOIDANCE_RECOVERY_RESUME_PREVIOUS_FLIGHTMODE:
-                plane.set_mode(prev_control_mode, MODE_REASON_AVOIDANCE_RECOVERY);
+                plane.set_mode(prev_control_mode,
+                        MODE_REASON_AVOIDANCE_RECOVERY);
                 break;
 
             case AP_AVOIDANCE_RECOVERY_RTL:
@@ -135,8 +135,7 @@ void AP_Avoidance_Plane::handle_recovery(uint8_t recovery_action)
 }
 
 // check flight mode is avoid_adsb
-bool AP_Avoidance_Plane::check_flightmode(bool allow_mode_change)
-{
+bool AP_Avoidance_Plane::check_flightmode(bool allow_mode_change) {
     // ensure plane is in avoid_adsb mode
     if (allow_mode_change && plane.control_mode != AVOID_ADSB) {
         plane.set_mode(AVOID_ADSB, MODE_REASON_AVOIDANCE);
@@ -146,31 +145,31 @@ bool AP_Avoidance_Plane::check_flightmode(bool allow_mode_change)
     return (plane.control_mode == AVOID_ADSB);
 }
 
-bool AP_Avoidance_Plane::handle_avoidance_vertical(const AP_Avoidance::Obstacle *obstacle, bool allow_mode_change)
-{
+bool AP_Avoidance_Plane::handle_avoidance_vertical(
+        const AP_Avoidance::Obstacle *obstacle, bool allow_mode_change) {
     // ensure copter is in avoid_adsb mode
-     if (!check_flightmode(allow_mode_change)) {
-         return false;
-     }
+    if (!check_flightmode(allow_mode_change)) {
+        return false;
+    }
 
-     // get best vector away from obstacle
-     if (plane.current_loc.alt > obstacle->_location.alt) {
-         // should climb
-         plane.guided_WP_loc.alt = plane.current_loc.alt + 1000; // set alt demand to be 10m above us, climb rate will be TECS_CLMB_MAX
-         return true;
+    // get best vector away from obstacle
+    if (plane.current_loc.alt > obstacle->_location.alt) {
+        // should climb
+        plane.guided_WP_loc.alt = plane.current_loc.alt + 1000; // set alt demand to be 10m above us, climb rate will be TECS_CLMB_MAX
+        return true;
 
-     } else if (plane.current_loc.alt > plane.g.RTL_altitude_cm) {
-         // should descend while above RTL alt
-         // TODO: consider using a lower altitude than RTL_altitude_cm since it's default (100m) is quite high
-         plane.guided_WP_loc.alt = plane.current_loc.alt - 1000; // set alt demand to be 10m below us, sink rate will be TECS_SINK_MAX
-         return true;
-     }
+    } else if (plane.current_loc.alt > plane.g.RTL_altitude_cm) {
+        // should descend while above RTL alt
+        // TODO: consider using a lower altitude than RTL_altitude_cm since it's default (100m) is quite high
+        plane.guided_WP_loc.alt = plane.current_loc.alt - 1000; // set alt demand to be 10m below us, sink rate will be TECS_SINK_MAX
+        return true;
+    }
 
-     return false;
+    return false;
 }
 
-bool AP_Avoidance_Plane::handle_avoidance_horizontal(const AP_Avoidance::Obstacle *obstacle, bool allow_mode_change)
-{
+bool AP_Avoidance_Plane::handle_avoidance_horizontal(
+        const AP_Avoidance::Obstacle *obstacle, bool allow_mode_change) {
     // ensure plane is in avoid_adsb mode
     if (!check_flightmode(allow_mode_change)) {
         return false;

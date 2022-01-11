@@ -14,8 +14,7 @@
  *  this failsafe_check function is called from the core timer interrupt
  *  at 1kHz.
  */
-void Plane::failsafe_check(void)
-{
+void Plane::failsafe_check(void) {
     static uint16_t last_mainLoop_count;
     static uint32_t last_timestamp;
     static bool in_failsafe;
@@ -62,7 +61,7 @@ void Plane::failsafe_check(void)
         if (!hal.util->get_soft_armed()) {
             throttle = 0;
         }
-        
+
         // setup secondary output channels that don't have
         // corresponding input channels
         SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, roll);

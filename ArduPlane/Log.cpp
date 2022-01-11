@@ -168,7 +168,7 @@ void Plane::Log_Write_Attitude(void)
         //Plane does not have the concept of navyaw. This is a placeholder.
         targets.z = 0;
     }
-    
+
     if (quadplane.tailsitter_active()) {
         DataFlash.Log_Write_AttitudeView(*quadplane.ahrs_view, targets);
     } else {
@@ -280,7 +280,7 @@ void Plane::Log_Write_Control_Tuning()
 {
     float est_airspeed = 0;
     ahrs.airspeed_estimate(&est_airspeed);
-    
+
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CTUN_MSG),
         time_us         : AP_HAL::micros64(),
@@ -439,7 +439,7 @@ void Plane::Log_Arm_Disarm() {
         LOG_PACKET_HEADER_INIT(LOG_ARM_DISARM_MSG),
         time_us                 : AP_HAL::micros64(),
         arm_state               : arming.is_armed(),
-        arm_checks              : arming.get_enabled_checks()      
+        arm_checks              : arming.get_enabled_checks()
     };
     DataFlash.WriteCriticalBlock(&pkt, sizeof(pkt));
 }
@@ -477,7 +477,7 @@ void Plane::Log_Write_GPS(uint8_t instance)
     }
 }
 
-void Plane::Log_Write_IMU() 
+void Plane::Log_Write_IMU()
 {
     DataFlash.Log_Write_IMU(ins);
 }
@@ -530,15 +530,15 @@ void Plane::Log_Write_Home_And_Origin()
 
 const struct LogStructure Plane::log_structure[] = {
     LOG_COMMON_STRUCTURES,
-    { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
+    { LOG_PERFORMANCE_MSG, sizeof(log_Performance),
       "PM",  "QHHIIII",  "TimeUS,NLon,NLoop,MaxT,MinT,LogDrop,Mem" },
-    { LOG_STARTUP_MSG, sizeof(log_Startup),         
+    { LOG_STARTUP_MSG, sizeof(log_Startup),
       "STRT", "QBH",         "TimeUS,SType,CTot" },
-    { LOG_CTUN_MSG, sizeof(log_Control_Tuning),     
+    { LOG_CTUN_MSG, sizeof(log_Control_Tuning),
       "CTUN", "Qcccchhhf",    "TimeUS,NavRoll,Roll,NavPitch,Pitch,ThrOut,RdrOut,ThrDem,Aspd" },
-    { LOG_NTUN_MSG, sizeof(log_Nav_Tuning),         
+    { LOG_NTUN_MSG, sizeof(log_Nav_Tuning),
       "NTUN", "Qfcccfff",  "TimeUS,WpDist,TargBrg,NavBrg,AltErr,XT,XTi,ArspdErr" },
-    { LOG_SONAR_MSG, sizeof(log_Sonar),             
+    { LOG_SONAR_MSG, sizeof(log_Sonar),
       "SONR", "QffBf",   "TimeUS,Dist,Volt,Cnt,Corr" },
     { LOG_ARM_DISARM_MSG, sizeof(log_Arm_Disarm),
       "ARM", "QBH", "TimeUS,ArmState,ArmChecks" },

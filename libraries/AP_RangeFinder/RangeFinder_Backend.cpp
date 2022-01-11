@@ -18,8 +18,10 @@
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
 
-extern const AP_HAL::HAL &hal;
+//alex added
+#include <GCS_MAVLink/GCS.h>
 
+extern const AP_HAL::HAL &hal;
 /*
  base class constructor. 
  This incorporates initialisation as well.
@@ -28,12 +30,27 @@ AP_RangeFinder_Backend::AP_RangeFinder_Backend(RangeFinder &_ranger,
         uint8_t instance,
         RangeFinder::RangeFinder_State &_state,
         MAV_DISTANCE_SENSOR _sensor_type) :
-        ranger(_ranger), state(_state), sensor_type(_sensor_type) {
+        ranger(_ranger), state(_state), sensor_type(_sensor_type)
+{
     _sem = hal.util->new_semaphore();
+
+
+    // gcs().send_text(MAV_SEVERITY_CRITICAL,"ALEX Detected new AP_RangeFinder_Backendr");
+/*
+    char buffer[128];
+    hal.util->snprintf(buffer, 128, "ALEX Detected new AP_RangeFinder_Backend");
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in new RangeFinder");
+*/
 }
 
 // update status based on distance measurement
 void AP_RangeFinder_Backend::update_status() {
+
+
+    // char buffer[128];
+    // hal.util->snprintf(buffer, 128, "ALEX Detected new RangeFinder");
+    // gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in update_status");
+
     // check distance
     if ((int16_t) state.distance_cm > ranger._max_distance_cm[state.instance]) {
         set_status(RangeFinder::RangeFinder_OutOfRangeHigh);

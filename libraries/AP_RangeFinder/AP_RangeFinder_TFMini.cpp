@@ -19,18 +19,22 @@
  */
 
 #include <AP_HAL/AP_HAL.h>
-#include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
-#include "RangeFinder.h"
 #include "AP_RangeFinder_TFMini.h"
 
+#include <AP_SerialManager/AP_SerialManager.h>
+#include <ctype.h>
+#include <AP_HAL/utility/sparse-endian.h>
 
-extern const AP_HAL::HAL& hal;
+//alex added
+#include <GCS_MAVLink/GCS.h>
+
+extern const AP_HAL::HAL &hal;
 
 #define BENEWAKE_FRAME_HEADER 0x59
 #define BENEWAKE_FRAME_LENGTH 9
 #define BENEWAKE_DIST_MAX_CM 32768
-#define BENEWAKE_TFMINI_OUT_OF_RANGE_CM 1200
+#define BENEWAKE_TFMINI_OUT_OF_RANGE_CM 12000     // It was 1200 - 0.1
 #define BENEWAKE_TF02_OUT_OF_RANGE_CM 2200
 #define BENEWAKE_TF03_OUT_OF_RANGE_CM 18000
 #define BENEWAKE_OUT_OF_RANGE_ADD_CM 100
@@ -58,22 +62,23 @@ extern const AP_HAL::HAL& hal;
  constructor is not called until detect() returns true, so we
  already know that we should setup the rangefinder
  */
-    AP_RangeFinder_TFMini::AP_RangeFinder_TFMini(RangeFinder &_ranger,  // Arg go to AP_RangeFinder_Backend parameters
+AP_RangeFinder_TFMini::AP_RangeFinder_TFMini(RangeFinder &_ranger,
                 uint8_t serial_instance,
                 RangeFinder::RangeFinder_State &_state,
-                AP_SerialManager &serial_manager,
-                benewake_model_type model):   // BENEWAKE_TFmini
-                AP_RangeFinder_Backend(_ranger, serial_instance, _state, MAV_DISTANCE_SENSOR_LASER)
+                MAV_DISTANCE_SENSOR _model) :
+                        AP_RangeFinder_Backend(ranger, serial_instance, state, MAV_DISTANCE_SENSOR_LASER)
 {
-    // const AP_SerialManager &serial_manager = AP_SerialManager();  // use serial_manager from arguments
-    // uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance);
+    // gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in new RangeFinder");
+
+    const AP_SerialManager &serial_manager = AP_SerialManager(); // May be from serial_instance - serial_manager[serial_instance]
     uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_TFMini, serial_instance);
-    model_type = model;
-    if (uart != nullptr) {
+    s_model_type = _model;
+    model_type = BENEWAKE_TFmini;  // It is const here ...
+    last_reading_ms = AP_HAL::millis();   // Added by Alex at 9.1.22
+    if (uart != nullptr)
+    {
         uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_TFMini, serial_instance));
     }
-
-
 }
 
 /*
@@ -81,11 +86,18 @@ extern const AP_HAL::HAL& hal;
  can do is check if the pin number is valid. If it is, then assume
  that the device is connected
  */
-bool AP_RangeFinder_TFMini::detect(RangeFinder &_ranger, uint8_t instance) {
+bool AP_RangeFinder_TFMini::detect(RangeFinder &_ranger, uint8_t instance)
+{
+    // char buffer[128];
+    // gcs().send_text(MAV_SEVERITY_INFO, buffer);
+    // hal.util->snprintf(buffer, 128, "ALEX 3 Detected new RangeFinder");
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in detect");
+
     if (_ranger._pin[instance] != -1) {
         return true;
     }
-    return false;
+    return _ranger.serial_manager.find_serial(AP_SerialManager::SerialProtocol_TFMini, instance) != nullptr;
+    // return serialmanager().find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance) != nullptr;
 }
 
 // distance returned in reading_cm, signal_ok is set to true if sensor reports a strong signal
@@ -173,18 +185,19 @@ bool AP_RangeFinder_TFMini::get_reading(uint16_t &reading_cm)
         // driver defined maximum range for the model and user defined max range + 1m
         float model_dist_max_cm = 0.0f;
         switch (model_type) {
-        case BENEWAKE_TFmini:
-            model_dist_max_cm = BENEWAKE_TFMINI_OUT_OF_RANGE_CM;
-            break;
-        case BENEWAKE_TF02:
-            model_dist_max_cm = BENEWAKE_TF02_OUT_OF_RANGE_CM;
-            break;
-        case BENEWAKE_TF03:
-            model_dist_max_cm = BENEWAKE_TF03_OUT_OF_RANGE_CM;
-            break;
+            case BENEWAKE_TFmini:
+                model_dist_max_cm = BENEWAKE_TFMINI_OUT_OF_RANGE_CM;
+                break;
+            case BENEWAKE_TF02:
+                model_dist_max_cm = BENEWAKE_TF02_OUT_OF_RANGE_CM;
+                break;
+            case BENEWAKE_TF03:
+                model_dist_max_cm = BENEWAKE_TF03_OUT_OF_RANGE_CM;
+                break;
         }
         // reading_cm = MAX(model_dist_max_cm, max_distance_cm() + BENEWAKE_OUT_OF_RANGE_ADD_CM);
         reading_cm = model_dist_max_cm;
+        // reading_cm = MAX(model_dist_max_cm, max_distance_cm() + BENEWAKE_OUT_OF_RANGE_ADD_CM);
         return true;
     }
 
@@ -199,11 +212,10 @@ void AP_RangeFinder_TFMini::update(void)
 {
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured
-        // state.last_reading_ms = AP_HAL::millis();   // Alex 2.1.22
+        last_reading_ms = AP_HAL::millis();   // Alex 2.1.22
         update_status();
     }
-    else if (AP_HAL::millis()  > 200) {
-    //    else if (AP_HAL::millis() - state.last_reading_ms > 200) {
+    else if (AP_HAL::millis() - last_reading_ms > 200) {
         set_status(RangeFinder::RangeFinder_NoData);
     }
 }

@@ -1,9 +1,9 @@
 #include "Plane.h"
 
 /*
-  mavlink motor test - implements the MAV_CMD_DO_MOTOR_TEST mavlink
-                       command so that the quadplane pilot can test an
-                       individual motor to ensure proper wiring, rotation.
+ mavlink motor test - implements the MAV_CMD_DO_MOTOR_TEST mavlink
+ command so that the quadplane pilot can test an
+ individual motor to ensure proper wiring, rotation.
  */
 
 // motor test definitions
@@ -12,8 +12,7 @@
 #define MOTOR_TEST_TIMEOUT_MS_MAX       30000   // max timeout is 30 seconds
 
 // motor_test_output - checks for timeout and sends updates to motors objects
-void QuadPlane::motor_test_output()
-{
+void QuadPlane::motor_test_output() {
     // exit immediately if the motor test is not running
     if (!motor_test.running) {
         return;
@@ -23,7 +22,7 @@ void QuadPlane::motor_test_output()
     uint32_t now = AP_HAL::millis();
     if ((now - motor_test.start_ms) >= motor_test.timeout_ms) {
         if (motor_test.motor_count > 1) {
-            if (now - motor_test.start_ms < motor_test.timeout_ms*1.5) {
+            if (now - motor_test.start_ms < motor_test.timeout_ms * 1.5) {
                 // output zero for 0.5s
                 motors->output_min();
             } else {
@@ -38,7 +37,7 @@ void QuadPlane::motor_test_output()
         motor_test_stop();
         return;
     }
-            
+
     int16_t pwm = 0;   // pwm that will be output to the motors
 
     // calculate pwm based on throttle type
@@ -46,7 +45,9 @@ void QuadPlane::motor_test_output()
     case MOTOR_TEST_THROTTLE_PERCENT:
         // sanity check motor_test.throttle value
         if (motor_test.throttle_value <= 100) {
-            pwm = thr_min_pwm + (thr_max_pwm - thr_min_pwm) * (float)motor_test.throttle_value*0.01f;
+            pwm = thr_min_pwm
+                    + (thr_max_pwm - thr_min_pwm)
+                            * (float) motor_test.throttle_value * 0.01f;
         }
         break;
 
@@ -55,7 +56,10 @@ void QuadPlane::motor_test_output()
         break;
 
     case MOTOR_TEST_THROTTLE_PILOT:
-        pwm = thr_min_pwm + (thr_max_pwm - thr_min_pwm) * (float)plane.channel_throttle->get_control_in()*0.01f;
+        pwm = thr_min_pwm
+                + (thr_max_pwm - thr_min_pwm)
+                        * (float) plane.channel_throttle->get_control_in()
+                        * 0.01f;
         break;
 
     default:
@@ -64,7 +68,7 @@ void QuadPlane::motor_test_output()
     }
 
     // sanity check throttle values
-    if (pwm >= MOTOR_TEST_PWM_MIN && pwm <= MOTOR_TEST_PWM_MAX ) {
+    if (pwm >= MOTOR_TEST_PWM_MIN && pwm <= MOTOR_TEST_PWM_MAX) {
         // turn on motor to specified pwm vlaue
         motors->output_test(motor_test.seq, pwm);
     } else {
@@ -74,9 +78,9 @@ void QuadPlane::motor_test_output()
 
 // mavlink_motor_test_start - start motor test - spin a single motor at a specified pwm
 //  returns MAV_RESULT_ACCEPTED on success, MAV_RESULT_FAILED on failure
-uint8_t QuadPlane::mavlink_motor_test_start(mavlink_channel_t chan, uint8_t motor_seq, uint8_t throttle_type,
-                                            uint16_t throttle_value, float timeout_sec, uint8_t motor_count)
-{
+uint8_t QuadPlane::mavlink_motor_test_start(mavlink_channel_t chan,
+        uint8_t motor_seq, uint8_t throttle_type, uint16_t throttle_value,
+        float timeout_sec, uint8_t motor_count) {
     if (motors->armed()) {
         gcs().send_text(MAV_SEVERITY_INFO, "Must be disarmed for motor test");
         return MAV_RESULT_FAILED;
@@ -88,7 +92,7 @@ uint8_t QuadPlane::mavlink_motor_test_start(mavlink_channel_t chan, uint8_t moto
 
         // enable and arm motors
         set_armed(true);
-        
+
         // turn on notify leds
         AP_Notify::flags.esc_calibration = true;
     }
@@ -108,8 +112,7 @@ uint8_t QuadPlane::mavlink_motor_test_start(mavlink_channel_t chan, uint8_t moto
 }
 
 // motor_test_stop - stops the motor test
-void QuadPlane::motor_test_stop()
-{
+void QuadPlane::motor_test_stop() {
     // exit immediately if the test is not running
     if (!motor_test.running) {
         return;
