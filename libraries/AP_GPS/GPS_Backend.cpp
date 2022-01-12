@@ -37,8 +37,8 @@ AP_GPS_Backend::AP_GPS_Backend(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::
     state.have_horizontal_accuracy = false;
     state.have_vertical_accuracy = false;
 
-    char buffer[128];
-    hal.util->snprintf(buffer, 128, "ALEX %d - Inside AP_GPS_Backend", 123);
+    // char buffer[128];
+    // hal.util->snprintf(buffer, 128, "ALEX %d - Inside AP_GPS_Backend", 123);
 }
 
 int32_t AP_GPS_Backend::swap_int32(int32_t v) const
@@ -164,7 +164,6 @@ void AP_GPS_Backend::broadcast_gps_type() const
 {
     char buffer[64];
     _detection_message(buffer, sizeof(buffer));
-    gcs().send_text(MAV_SEVERITY_INFO, buffer);
 }
 
 void AP_GPS_Backend::Write_DataFlash_Log_Startup_messages() const

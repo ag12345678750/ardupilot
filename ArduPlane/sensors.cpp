@@ -22,7 +22,6 @@ void Plane::init_rangefinder(void)
  */
 void Plane::read_rangefinder(void)
 {
-
     // notify the rangefinder of our approximate altitude above ground to allow it to power on
     // during low-altitude flight when configured to power down during higher-altitude flight
     float height;

@@ -24,7 +24,7 @@ public:
     static bool detect(RangeFinder &ranger, uint8_t instance);
 
     // update state
-    void update(void);
+    void update(void) override;
 
 private:   // Temporary
     // get a reading

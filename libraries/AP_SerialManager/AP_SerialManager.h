@@ -82,7 +82,7 @@ public:
         SerialProtocol_FrSky_D = 3,                  // FrSky D protocol (D-receivers)
         SerialProtocol_FrSky_SPort = 4,              // FrSky SPort protocol (X-receivers)
         SerialProtocol_GPS = 5,
-        SerialProtocol_TFMini = 6,
+        SerialProtocol_GPS2 = 6,
         SerialProtocol_AlexMos = 7,
         SerialProtocol_SToRM32 = 8,
         SerialProtocol_Lidar = 9,
@@ -90,7 +90,7 @@ public:
         SerialProtocol_Lidar360 = 11,                // Lightware SF40C or TeraRanger Tower
         SerialProtocol_Aerotenna_uLanding      = 12, // Ulanding support
         SerialProtocol_Beacon = 13,
-        SerialProtocol_GPS2 = 14                     // not used - use GPS and provide instance of 1
+        SerialProtocol_TFMini = 14
     };
 
     // Constructor

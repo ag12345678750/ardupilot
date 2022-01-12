@@ -18,8 +18,8 @@
  */
 #pragma once
 
-#include <GCS_MAVLink/GCS_MAVLink.h>
-#include "AP_GPS.h"
+// #include <GCS_MAVLink/GCS_MAVLink.h>
+// #include "AP_GPS.h"
 
 class AP_GPS_Backend
 {

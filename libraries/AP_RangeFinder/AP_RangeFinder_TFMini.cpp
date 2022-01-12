@@ -68,8 +68,6 @@ AP_RangeFinder_TFMini::AP_RangeFinder_TFMini(RangeFinder &_ranger,
                 MAV_DISTANCE_SENSOR _model) :
                         AP_RangeFinder_Backend(ranger, serial_instance, state, MAV_DISTANCE_SENSOR_LASER)
 {
-    // gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in new RangeFinder");
-
     const AP_SerialManager &serial_manager = AP_SerialManager(); // May be from serial_instance - serial_manager[serial_instance]
     uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_TFMini, serial_instance);
     s_model_type = _model;
@@ -88,10 +86,7 @@ AP_RangeFinder_TFMini::AP_RangeFinder_TFMini(RangeFinder &_ranger,
  */
 bool AP_RangeFinder_TFMini::detect(RangeFinder &_ranger, uint8_t instance)
 {
-    // char buffer[128];
-    // gcs().send_text(MAV_SEVERITY_INFO, buffer);
-    // hal.util->snprintf(buffer, 128, "ALEX 3 Detected new RangeFinder");
-    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in detect");
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in detect TFMini");
 
     if (_ranger._pin[instance] != -1) {
         return true;
@@ -103,6 +98,8 @@ bool AP_RangeFinder_TFMini::detect(RangeFinder &_ranger, uint8_t instance)
 // distance returned in reading_cm, signal_ok is set to true if sensor reports a strong signal
 bool AP_RangeFinder_TFMini::get_reading(uint16_t &reading_cm)
 {
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in get_reading TFMini");
+
     if (uart == nullptr) {
         return false;
     }
@@ -210,6 +207,8 @@ bool AP_RangeFinder_TFMini::get_reading(uint16_t &reading_cm)
 */
 void AP_RangeFinder_TFMini::update(void)
 {
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in TFMini - update");
+
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured
         last_reading_ms = AP_HAL::millis();   // Alex 2.1.22

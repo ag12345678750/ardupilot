@@ -546,11 +546,6 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager,
         enum Rotation orientation_default) :
         num_instances(0), estimated_terrain_height(0), serial_manager(
                 _serial_manager) {
-
-    // char* buffer = new char[128];
-    // hal.util->snprintf(buffer, 128, "ALEX 4 - my test in RangeFinder");
-    gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 in RangeFinder");
-
     AP_Param::setup_object_defaults(this, var_info);
 
     // set orientation defaults
@@ -569,7 +564,13 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager,
  rangefinders.
  */
 void RangeFinder::init(void) {
-    gcs().send_text(MAV_SEVERITY_CRITICAL,"alex 85 in range init");
+    static int count = 0;
+    count++;
+    if (count == 100)
+    {
+        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in Init");
+        count = 0;
+    }
     if (num_instances != 0) {
         // init called a 2nd time?
         return;
@@ -599,26 +600,33 @@ void RangeFinder::init(void) {
 void RangeFinder::update(void) {
     static int count = 0;
     count++;
-    if (count == 200)
-    {
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in range finder");
-        count = 0;
-    }
+    if (count == 500)
+        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in range finder - update");
     for (uint8_t i = 0; i < num_instances; i++) {
+        if (count == 500)
+            gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex num_instances %d ", num_instances);
 
-        if (drivers[i] != nullptr) {
+        if (_type[i] == RangeFinder_TYPE_NONE) {
 
-            if (_type[i] == RangeFinder_TYPE_NONE) {
-
-                // allow user to disable a rangefinder at runtime
-                state[i].status = RangeFinder_NotConnected;
-                state[i].range_valid_count = 0;
-                continue;
-            }
-            drivers[i]->update();
-            update_pre_arm_check(i);
+            gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex RangeFinder_TYPE_NONE %d", num_instances);
+            // allow user to disable a rangefinder at runtime
+            state[i].status = RangeFinder_NotConnected;
+            state[i].range_valid_count = 0;
+            continue;
         }
+        // How to define which DRIVER is it
+        if (count == 500)
+        {
+            if (_type[i] == RangeFinder_TYPE_LWSER)
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex LWSER %d ins %d ", i, num_instances);
+            else if (_type[i] == RangeFinder_TYPE_TFMini)
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex TFMini %d ins % ", i, num_instances);
+        }
+        drivers[i]->update();
+        update_pre_arm_check(i);
     }
+    if (count == 500)
+        count = 0;
 }
 
 bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend) {
@@ -638,7 +646,6 @@ bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend) {
  */
 void RangeFinder::detect_instance(uint8_t instance) {
     //info alex
-    // char buffer[128];
     gcs().send_text(MAV_SEVERITY_CRITICAL,"alex 5 in detect_instance");
 
     enum RangeFinder_Type type = (enum RangeFinder_Type) _type[instance].get();
@@ -704,7 +711,6 @@ void RangeFinder::detect_instance(uint8_t instance) {
 #endif
     case RangeFinder_TYPE_LWSER:
         //info alex
-        // hal.util->snprintf(buffer, 128, "ALEX %d - LightWareSerial init", 123);
         gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_LWSER");
         if (AP_RangeFinder_LightWareSerial::detect(*this, instance,
                 serial_manager)) {
@@ -759,7 +765,6 @@ void RangeFinder::detect_instance(uint8_t instance) {
         }
         break;
     case RangeFinder_TYPE_TFMini:
-        // hal.util->snprintf(buffer, 128, "ALEX %d - IN TFMini init", 123);
         gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_TFMini");
         if (AP_RangeFinder_TFMini::detect(*this, instance))
         {
