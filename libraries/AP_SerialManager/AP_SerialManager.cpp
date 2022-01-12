@@ -26,7 +26,7 @@
 extern const AP_HAL::HAL& hal;
 
 //alex added
-#include <GCS_MAVLink/GCS.h>
+// #include <GCS_MAVLink/GCS.h>
 
 #ifdef CONFIG_ARCH_BOARD_PX4FMU_V4
 #define SERIAL5_PROTOCOL SerialProtocol_MAVLink
@@ -395,7 +395,7 @@ bool AP_SerialManager::protocol_match(enum SerialProtocol protocol1, enum Serial
 
     // tfmini match
     if (protocol1 == SerialProtocol_TFMini && protocol2 == SerialProtocol_TFMini) {
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 protocol faund");
+        // gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 7 protocol faund");
         return true;
     }
 

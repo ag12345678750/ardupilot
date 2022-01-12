@@ -42,7 +42,7 @@
 #include "RangeFinder_Backend.h"
 
 //alex added
-#include <GCS_MAVLink/GCS.h>
+// #include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL &hal;
 
@@ -564,13 +564,6 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager,
  rangefinders.
  */
 void RangeFinder::init(void) {
-    static int count = 0;
-    count++;
-    if (count == 100)
-    {
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in Init");
-        count = 0;
-    }
     if (num_instances != 0) {
         // init called a 2nd time?
         return;
@@ -598,35 +591,17 @@ void RangeFinder::init(void) {
  around 10Hz by main loop
  */
 void RangeFinder::update(void) {
-    static int count = 0;
-    count++;
-    if (count == 500)
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in range finder - update");
     for (uint8_t i = 0; i < num_instances; i++) {
-        if (count == 500)
-            gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex num_instances %d ", num_instances);
-
         if (_type[i] == RangeFinder_TYPE_NONE) {
-
-            gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex RangeFinder_TYPE_NONE %d", num_instances);
             // allow user to disable a rangefinder at runtime
             state[i].status = RangeFinder_NotConnected;
             state[i].range_valid_count = 0;
             continue;
         }
         // How to define which DRIVER is it
-        if (count == 500)
-        {
-            if (_type[i] == RangeFinder_TYPE_LWSER)
-                gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex LWSER %d ins %d ", i, num_instances);
-            else if (_type[i] == RangeFinder_TYPE_TFMini)
-                gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex TFMini %d ins % ", i, num_instances);
-        }
         drivers[i]->update();
         update_pre_arm_check(i);
     }
-    if (count == 500)
-        count = 0;
 }
 
 bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend) {
@@ -645,9 +620,6 @@ bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend) {
  detect if an instance of a rangefinder is connected. 
  */
 void RangeFinder::detect_instance(uint8_t instance) {
-    //info alex
-    gcs().send_text(MAV_SEVERITY_CRITICAL,"alex 5 in detect_instance");
-
     enum RangeFinder_Type type = (enum RangeFinder_Type) _type[instance].get();
     switch (type) {
     case RangeFinder_TYPE_PLI2C:
@@ -711,7 +683,6 @@ void RangeFinder::detect_instance(uint8_t instance) {
 #endif
     case RangeFinder_TYPE_LWSER:
         //info alex
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_LWSER");
         if (AP_RangeFinder_LightWareSerial::detect(*this, instance,
                 serial_manager)) {
             state[instance].instance = instance;
@@ -765,7 +736,7 @@ void RangeFinder::detect_instance(uint8_t instance) {
         }
         break;
     case RangeFinder_TYPE_TFMini:
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_TFMini");
+        // gcs().send_text(MAV_SEVERITY_CRITICAL,"alex in RangeFinder_TYPE_TFMini");
         if (AP_RangeFinder_TFMini::detect(*this, instance))
         {
             state[instance].instance = instance;

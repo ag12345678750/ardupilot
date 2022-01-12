@@ -34,8 +34,7 @@ AP_RangeFinder_LightWareSerial::AP_RangeFinder_LightWareSerial(
         AP_SerialManager &serial_manager) :
         AP_RangeFinder_Backend(_ranger, instance, _state,
                 MAV_DISTANCE_SENSOR_LASER) {
-    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar,
-            0);
+    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0);
     if (uart != nullptr) {
         uart->begin(
                 serial_manager.find_baudrate(
@@ -56,9 +55,7 @@ bool AP_RangeFinder_LightWareSerial::detect(RangeFinder &_ranger,
 
 // read - return last value measured by sensor
 bool AP_RangeFinder_LightWareSerial::get_reading(uint16_t &reading_cm) {
-    // char buffer[128];
-    // hal.util->snprintf(buffer, 128, "ALEX 2 %d - LightWareSerial", 123);
-    // gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex 6 in get_reading");
+
     if (uart == nullptr) {
         return false;
     }
@@ -97,13 +94,6 @@ bool AP_RangeFinder_LightWareSerial::get_reading(uint16_t &reading_cm) {
  update the state of the sensor
  */
 void AP_RangeFinder_LightWareSerial::update(void) {
-    static int count2 = 0;
-    count2++;
-    if (count2 == 600)
-    {
-        gcs().send_text(MAV_SEVERITY_CRITICAL,"Alex LWSER  ");
-        count2 = 0;
-    }
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured
         last_reading_ms = AP_HAL::millis();
